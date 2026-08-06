@@ -1,0 +1,6 @@
+{
+  "name": "AIR Architectural Center",
+  "description": "Luxury architectural business center website featuring a dynamic 3D helical preloader and interactive hero section.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
