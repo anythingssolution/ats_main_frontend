@@ -1,7 +1,8 @@
-import React, { useState, useLayoutEffect, useRef } from 'react';
+import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowRight, ArrowUpRight, Mail, Phone, MapPin, Globe, Smartphone, BarChart3, Palette, Presentation, Bot } from 'lucide-react';
+import { GridTransitionSection } from './GridTransitionSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,11 +17,51 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   const headerRef = useRef<HTMLElement>(null);
   const lettersWrapperRef = useRef<HTMLDivElement>(null);
   const headerLogoTargetRef = useRef<HTMLDivElement>(null);
+  /** true = light nav text (sitting over a dark section) */
+  const [navOnDark, setNavOnDark] = useState(false);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Transparent nav — flip link/CTA colors from the section under the bar
+  useEffect(() => {
+    if (isLoading) return;
+
+    const triggers: ScrollTrigger[] = [];
+
+    const grid = document.querySelector<HTMLElement>('[data-grid-transition]');
+    if (grid) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: grid,
+          start: 'top top+=80',
+          end: 'bottom top+=80',
+          onUpdate: (self) => {
+            // Grid stays black until late, then fills light
+            setNavOnDark(self.progress < 0.72);
+          },
+          onLeave: () => setNavOnDark(false),
+          onLeaveBack: () => setNavOnDark(false),
+        })
+      );
+    }
+
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: '#contact',
+        start: 'top top+=80',
+        end: 'bottom top+=80',
+        onEnter: () => setNavOnDark(true),
+        onEnterBack: () => setNavOnDark(true),
+        onLeave: () => setNavOnDark(false),
+        onLeaveBack: () => setNavOnDark(false),
+      })
+    );
+
+    return () => triggers.forEach((t) => t.kill());
+  }, [isLoading]);
 
   // Intro animation — letters slide in from left
   useLayoutEffect(() => {
@@ -97,21 +138,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           scrollTrigger: {
             trigger: hero,
             start: 'top top',
-            end: 'bottom top',
-            scrub: 0.5,
+            // Extra scroll room so the next section can rise in while ATS docks in the nav
+            end: '+=120%',
+            scrub: 0.65,
             pin: true,
+            // Let the next section scroll UP over the hero (no empty white gap)
             pinSpacing: false,
-            snap: {
-              // If user scrolls past 15% of the animation, snap to 100% (complete).
-              // Otherwise snap back to 0% (start).
-              snapTo: (progress: number) => (progress < 0.15 ? 0 : 1),
-              duration: { min: 0.4, max: 0.8 },
-              ease: 'power2.inOut',
-            },
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
 
-        // Shrink + move the entire letters wrapper
+        // Shrink + move the entire letters wrapper into the nav
         tl.to(
           lettersWrapper,
           {
@@ -122,38 +160,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           },
           0
         )
-          // Make the capitals bolder as they shrink into the nav
           .to(
             '.hero-capital',
             {
-              fontWeight: 600,
+              fontWeight: 700,
               ease: 'none',
             },
             0
           )
-          // Phase 1: Smoothly fade out the lowercase text opacity first
           .to(
             '.hero-lowercase',
             {
               opacity: 0,
-              duration: 0.3,
+              duration: 0.25,
               ease: 'power1.out',
             },
             0
           )
-          // Phase 2: Then collapse the structural space (width, scale, margin)
           .to(
             '.hero-lowercase',
             {
               scaleX: 0,
               width: 0,
               marginLeft: 0,
-              duration: 0.7,
+              duration: 0.55,
               ease: 'power2.inOut',
             },
-            0.15
+            0.12
           )
-          // Collapse the gaps between letter groups as lowercase disappears
           .to(
             lettersWrapper.querySelector('div'),
             {
@@ -162,18 +196,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             },
             0
           )
-          // Fade in header bg
           .to(
             header,
             {
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              borderBottom: '1px solid rgba(0,0,0,0.06)',
+              backgroundColor: 'transparent',
+              backdropFilter: 'none',
+              borderBottomColor: 'transparent',
+              borderBottomWidth: 0,
               ease: 'none',
             },
             0
           )
-          // Fade out center header text
           .to(
             '.header-center-text',
             {
@@ -182,13 +215,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             },
             0
           )
-          // Fade out hero footer
+          // Fade hero quote / CTA at the same pace as the "ny/hings/olution" collapse
+          // so it reads as one synced motion instead of vanishing early.
           .to(
             '.hero-secondary-ui',
             {
               opacity: 0,
-              y: -20,
-              ease: 'none',
+              y: -24,
+              duration: 0.65,
+              ease: 'power2.inOut',
             },
             0
           );
@@ -203,32 +238,38 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   return (
     <div ref={containerRef} className="relative w-full bg-white text-[#111111] select-none font-sans">
 
-      {/* FIXED HEADER */}
+      {/* FIXED HEADER — always transparent, colors follow section */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 overflow-visible"
-        style={{ backgroundColor: 'transparent' }}
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 overflow-visible border-0"
+        style={{ backgroundColor: 'transparent', borderBottom: 'none', backdropFilter: 'none' }}
       >
         {/* Left: Nav links */}
-        <nav className="secondary-ui hidden md:flex items-center gap-8">
-          {['Services', 'About', 'Portfolio', 'Pricing'].map((item) => (
+        <nav className="secondary-ui hidden md:flex items-center gap-8 z-10">
+          {['Services', 'About', 'Portfolio'].map((item) => (
             <button
               key={item}
               onClick={() => scrollToSection(item.toLowerCase())}
-              className="font-mono-custom text-xs uppercase tracking-[0.2em] font-medium text-neutral-600 hover:text-black transition-colors cursor-pointer"
+              className={`font-mono-custom text-xs uppercase tracking-[0.2em] font-medium transition-colors duration-300 cursor-pointer ${
+                navOnDark
+                  ? 'text-white/70 hover:text-white'
+                  : 'text-neutral-600 hover:text-black'
+              }`}
             >
               {item}
             </button>
           ))}
         </nav>
 
-        {/* Center: Text (fades out) + invisible logo landing target */}
-        <div className="relative flex items-center justify-center min-w-[120px] min-h-[40px]">
-          <div className="header-center-text text-center font-mono-custom uppercase tracking-[0.15em] text-xs sm:text-sm font-medium leading-snug text-neutral-900">
-            <div>ANY THINGS</div>
-            <div>SOLUTION</div>
+        {/* Center: True viewport center */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-[200px] sm:min-w-[280px] min-h-[40px] pointer-events-none px-2">
+          <div
+            className={`header-center-text text-center font-mono-custom uppercase tracking-[0.2em] text-[10px] sm:text-xs font-bold leading-snug transition-colors duration-300 ${
+              navOnDark ? 'text-white' : 'text-neutral-900'
+            }`}
+          >
+            Your business · Our digital engine
           </div>
-          {/* Logo target — letters land here */}
           <div
             ref={headerLogoTargetRef}
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -237,13 +278,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         </div>
 
         {/* Right: Contact CTA */}
-        <div className="secondary-ui">
+        <div className="secondary-ui z-10 ml-auto">
           <button
             onClick={() => scrollToSection('contact')}
-            className="flex items-center gap-2 bg-black hover:bg-neutral-800 text-white text-xs font-mono-custom uppercase font-bold tracking-widest px-6 py-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+            className={`flex items-center gap-2 text-xs font-mono-custom uppercase font-bold tracking-widest px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
+              navOnDark
+                ? 'bg-white text-black hover:bg-neutral-200'
+                : 'bg-black text-white hover:bg-neutral-800 shadow-md'
+            }`}
           >
             <span>CONTACT US</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+            <ArrowUpRight className={`w-3.5 h-3.5 ${navOnDark ? 'text-black' : 'text-white'}`} />
           </button>
         </div>
       </header>
@@ -253,33 +298,35 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* ============================================================ */}
       <div
         ref={lettersWrapperRef}
-        className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none will-change-transform"
+        className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none will-change-transform transition-colors duration-300 ${
+          navOnDark ? 'text-white' : 'text-black'
+        }`}
       >
-        <div className="flex items-baseline gap-8 sm:gap-16 md:gap-24 lg:gap-32">
+        <div className="flex w-full items-baseline justify-between gap-[2.5vw] px-4 sm:px-6 md:px-10">
           {/* "Any" */}
-          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-black select-none">
-            <span className="hero-capital font-light text-[6rem] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[20rem] leading-none">
+          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-current select-none">
+            <span className="hero-capital font-syne font-bold text-[clamp(3rem,19vw,22rem)] leading-none">
               A
             </span>
-            <span className="hero-lowercase font-light text-[1.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4rem] xl:text-[5rem] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
+            <span className="hero-lowercase uppercase font-syne font-light text-[clamp(0.8rem,5vw,5.75rem)] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
               ny
             </span>
           </span>
           {/* "Things" */}
-          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-black select-none">
-            <span className="hero-capital font-light text-[6rem] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[20rem] leading-none">
+          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-current select-none">
+            <span className="hero-capital font-syne font-bold text-[clamp(3rem,19vw,22rem)] leading-none">
               T
             </span>
-            <span className="hero-lowercase font-light text-[1.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4rem] xl:text-[5rem] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
+            <span className="hero-lowercase uppercase font-syne font-light text-[clamp(0.8rem,5vw,5.75rem)] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
               hings
             </span>
           </span>
           {/* "Solution" */}
-          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-black select-none">
-            <span className="hero-capital font-light text-[6rem] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[20rem] leading-none">
+          <span className="hero-letter opacity-0 inline-flex items-baseline leading-none text-current select-none">
+            <span className="hero-capital font-syne font-bold text-[clamp(3rem,19vw,22rem)] leading-none">
               S
             </span>
-            <span className="hero-lowercase font-light text-[1.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4rem] xl:text-[5rem] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
+            <span className="hero-lowercase uppercase font-syne font-light text-[clamp(0.8rem,5vw,5.75rem)] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
               olution
             </span>
           </span>
@@ -289,18 +336,50 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* HERO SECTION — 100vh trigger zone (scroll trigger area) */}
       <section
         ref={heroRef}
-        className="relative h-screen w-full"
+        className="relative z-0 h-screen w-full overflow-hidden"
       >
-        {/* Bottom scroll hint (fades out on scroll) */}
-        <footer className="hero-secondary-ui absolute bottom-0 left-0 right-0 z-30 w-full max-w-[1920px] mx-auto px-6 md:px-12 pb-6 flex items-center justify-end">
+        {/* Left/right vignette — darkens the edges, keeps the center clear */}
+        <div
+          className="absolute inset-0 z-[1] h-full w-full pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 78%, rgba(0,0,0,0.12) 100%)',
+          }}
+        />
+
+        {/* Attract copy */}
+        <div className="hero-secondary-ui absolute inset-0 z-[65] pointer-events-none">
+          {/* Quote — above Any Things Solution */}
+          <div className="absolute left-0 right-0 top-24 md:top-28 px-6 md:px-12">
+            <blockquote className="mx-auto max-w-[820px] text-center font-syne text-lg sm:text-xl md:text-2xl font-medium leading-[1.25] text-neutral-900">
+              &ldquo;Bring your business. We&apos;ll build every digital path to{' '}
+              <span className="text-[#7B6CFF]">grow it.</span>&rdquo;
+            </blockquote>
+          </div>
+
+          {/* Scroll arrow — bottom right */}
           <button
             title="Scroll to explore"
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 text-neutral-800 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+            onClick={() => scrollToSection('services')}
+            className="pointer-events-auto absolute bottom-6 right-6 md:bottom-8 md:right-12 z-10 flex items-center justify-center w-10 h-10 rounded-lg bg-white/90 hover:bg-white border border-neutral-200 text-neutral-800 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
           >
             <ArrowDown className="w-4 h-4" />
           </button>
-        </footer>
+
+          {/* CTA — bottom center */}
+          <div className="absolute bottom-10 left-0 right-0 md:bottom-14 flex justify-center">
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="pointer-events-auto inline-flex items-center gap-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-mono-custom uppercase font-bold tracking-widest px-8 py-3.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-[0_8px_24px_rgba(0,0,0,0.25)] cursor-pointer"
+            >
+              <span>Let&apos;s talk growth</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+            </button>
+          </div>
+        </div>
       </section>
+
+      <GridTransitionSection isLoading={isLoading} />
 
       {/* ============================================================ */}
       {/* SERVICES SECTION */}
@@ -504,98 +583,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                     ))}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* PRICING SECTION */}
-      {/* ============================================================ */}
-      <section id="pricing" className="relative z-10 bg-white border-t border-neutral-200">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-          <div className="mb-16 md:mb-24 text-center">
-            <p className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-400 mb-4">
-              PRICING
-            </p>
-            <h2 className="font-light text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] leading-tight text-black">
-              Plans That Scale With You
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-[1000px] mx-auto">
-            {[
-              {
-                name: 'Starter',
-                price: '$499',
-                period: '/project',
-                desc: 'Perfect for small businesses and MVPs.',
-                features: ['Landing Page Design', 'Basic SEO Setup', 'Social Media Kit', '2 Revision Rounds', 'Email Support'],
-                highlight: false,
-              },
-              {
-                name: 'Growth',
-                price: '$1,499',
-                period: '/month',
-                desc: 'For growing startups that need momentum.',
-                features: ['Full Website / App', 'AI Ad Campaigns', 'Monthly Analytics', 'Unlimited Revisions', 'Priority Support', 'Brand Strategy'],
-                highlight: true,
-              },
-              {
-                name: 'Enterprise',
-                price: 'Custom',
-                period: '',
-                desc: 'Tailored solutions for established businesses.',
-                features: ['Dedicated Team', 'Custom AI Solutions', 'Multi-platform Apps', '24/7 Support', 'SLA Guarantee', 'Quarterly Reviews'],
-                highlight: false,
-              },
-            ].map((plan, i) => (
-              <div
-                key={i}
-                className={`relative p-8 rounded-2xl border transition-all duration-300 ${
-                  plan.highlight
-                    ? 'bg-black text-white border-black shadow-2xl scale-[1.02]'
-                    : 'bg-white border-neutral-200/80 hover:border-neutral-300 hover:shadow-lg'
-                }`}
-              >
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-white text-black text-[10px] font-mono-custom uppercase tracking-[0.3em] rounded-full shadow-sm">
-                    MOST POPULAR
-                  </div>
-                )}
-                <h3 className="font-mono-custom text-xs uppercase tracking-[0.3em] mb-6 opacity-60">
-                  {plan.name}
-                </h3>
-                <div className="mb-2">
-                  <span className="font-light text-[2.5rem] md:text-[3rem] leading-none">
-                    {plan.price}
-                  </span>
-                  <span className={`text-sm ml-1 ${plan.highlight ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                    {plan.period}
-                  </span>
-                </div>
-                <p className={`text-sm mb-8 ${plan.highlight ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                  {plan.desc}
-                </p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((f) => (
-                    <li key={f} className={`text-sm flex items-center gap-2 ${plan.highlight ? 'text-neutral-300' : 'text-neutral-600'}`}>
-                      <span className={`w-1 h-1 rounded-full ${plan.highlight ? 'bg-white' : 'bg-black'}`} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => scrollToSection('contact')}
-                  className={`w-full py-3 rounded-full text-xs font-mono-custom uppercase tracking-widest font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
-                    plan.highlight
-                      ? 'bg-white text-black hover:bg-neutral-100'
-                      : 'bg-black text-white hover:bg-neutral-800'
-                  }`}
-                >
-                  Get Started
-                </button>
               </div>
             ))}
           </div>
