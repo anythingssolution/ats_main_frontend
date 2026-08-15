@@ -3,8 +3,39 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowRight, ArrowUpRight, Mail, Phone, MapPin, Globe, Smartphone, BarChart3, Palette, Presentation, Bot } from 'lucide-react';
 import { GridTransitionSection } from './GridTransitionSection';
+import { FloatingImagesBackground } from './FloatingImagesBackground';
+import { TiltPortfolioSection } from './TiltPortfolioSection';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const SPLIT_BANDS = 4;
+
+const SplitLine: React.FC<{ text: string; className?: string; shift?: number }> = ({
+  text,
+  className = '',
+  shift = 1,
+}) => (
+  <div className={`relative h-[0.88em] w-full overflow-hidden ${className}`} data-split-line={shift}>
+    {Array.from({ length: SPLIT_BANDS }, (_, i) => {
+      const topClip = (i / SPLIT_BANDS) * 100;
+      const bottomClip = 100 - ((i + 1) / SPLIT_BANDS) * 100;
+      const dir = shift * (i % 2 === 0 ? 1 : -1);
+      return (
+        <span
+          key={i}
+          data-split-band
+          className="absolute inset-0 block leading-none will-change-transform"
+          style={{
+            clipPath: `inset(${topClip}% 0 ${bottomClip}% 0)`,
+            transform: `translateX(${dir * 16}vw)`,
+          }}
+        >
+          {text}
+        </span>
+      );
+    })}
+  </div>
+);
 
 interface HeroSectionProps {
   onReplayLoader: () => void;
@@ -17,6 +48,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   const headerRef = useRef<HTMLElement>(null);
   const lettersWrapperRef = useRef<HTMLDivElement>(null);
   const headerLogoTargetRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+  const servicesRef = useRef<HTMLElement>(null);
   /** true = light nav text (sitting over a dark section) */
   const [navOnDark, setNavOnDark] = useState(false);
 
@@ -50,6 +83,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
     triggers.push(
       ScrollTrigger.create({
+        trigger: '#services',
+        start: 'top top+=80',
+        end: 'bottom top+=80',
+        onEnter: () => setNavOnDark(true),
+        onEnterBack: () => setNavOnDark(true),
+        onLeave: () => setNavOnDark(false),
+        onLeaveBack: () => setNavOnDark(false),
+      })
+    );
+
+    triggers.push(
+      ScrollTrigger.create({
         trigger: '#contact',
         start: 'top top+=80',
         end: 'bottom top+=80',
@@ -59,6 +104,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         onLeaveBack: () => setNavOnDark(false),
       })
     );
+
+    const portfolio = document.querySelector<HTMLElement>('[data-portfolio-tilt]');
+    if (portfolio) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: portfolio,
+          start: 'top top+=80',
+          end: 'bottom top+=80',
+          onEnter: () => setNavOnDark(true),
+          onEnterBack: () => setNavOnDark(true),
+          onLeave: () => setNavOnDark(false),
+          onLeaveBack: () => setNavOnDark(false),
+        })
+      );
+    }
+
+    const marquee = document.querySelector<HTMLElement>('[data-about-marquee]');
+    if (marquee) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: marquee,
+          start: 'top top+=80',
+          end: 'bottom top+=80',
+          onEnter: () => setNavOnDark(true),
+          onEnterBack: () => setNavOnDark(true),
+          onLeave: () => setNavOnDark(false),
+          onLeaveBack: () => setNavOnDark(false),
+        })
+      );
+    }
 
     return () => triggers.forEach((t) => t.kill());
   }, [isLoading]);
@@ -235,6 +310,86 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     return () => clearTimeout(timer);
   }, [isLoading]);
 
+  useLayoutEffect(() => {
+    if (isLoading) return;
+
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-split-scrub]').forEach((el) => {
+        const lines = el.querySelectorAll<HTMLElement>('[data-split-line]');
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 80%',
+            end: 'top 22%',
+            scrub: 0.7,
+          },
+        });
+
+        lines.forEach((line) => {
+          const lineDir = Number(line.dataset.splitLine) || 1;
+          line.querySelectorAll<HTMLElement>('[data-split-band]').forEach((band, i) => {
+            const dir = lineDir * (i % 2 === 0 ? 1 : -1);
+            tl.fromTo(band, { x: `${16 * dir}vw` }, { x: 0, duration: 1 }, 0);
+          });
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
+        gsap.from(el, {
+          y: 36,
+          opacity: 0,
+          duration: 0.95,
+          ease: 'power3.out',
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 90%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>('[data-service-card]').forEach((el, i) => {
+        gsap.from(el, {
+          y: 56,
+          opacity: 0,
+          duration: 0.85,
+          delay: (i % 3) * 0.1,
+          ease: 'power3.out',
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 92%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>('[data-rule-line]').forEach((el) => {
+        gsap.from(el, {
+          scaleX: 0,
+          transformOrigin: 'center center',
+          duration: 1.1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 90%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      });
+    }, containerRef);
+
+    const refresh = () => ScrollTrigger.refresh();
+    const raf = requestAnimationFrame(refresh);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ctx.revert();
+    };
+  }, [isLoading]);
+
   return (
     <div ref={containerRef} className="relative w-full bg-white text-[#111111] select-none font-sans">
 
@@ -317,7 +472,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             <span className="hero-capital font-syne font-bold text-[clamp(3rem,19vw,22rem)] leading-none">
               T
             </span>
-            <span className="hero-lowercase uppercase font-syne font-light text-[clamp(0.8rem,5vw,5.75rem)] leading-none tracking-wide" style={{ marginLeft: '-0.05em', transformOrigin: 'left baseline' }}>
+            <span className="hero-lowercase uppercase font-syne font-light text-[clamp(0.8rem,5vw,5.75rem)] leading-none tracking-wide" style={{ marginLeft: 'calc(clamp(3rem, 19vw, 22rem) * -0.24)', transformOrigin: 'left baseline' }}>
               hings
             </span>
           </span>
@@ -338,12 +493,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         ref={heroRef}
         className="relative z-0 h-screen w-full overflow-hidden"
       >
-        {/* Left/right vignette — darkens the edges, keeps the center clear */}
+        {/* Scattered floating images — drift slowly, nudge with the cursor */}
+        <FloatingImagesBackground className="z-0" />
+
+        {/* Soft center wash so the headline stays readable over the images */}
         <div
           className="absolute inset-0 z-[1] h-full w-full pointer-events-none"
           style={{
             background:
-              'linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 78%, rgba(0,0,0,0.12) 100%)',
+              'radial-gradient(ellipse 58% 42% at 50% 50%, rgba(250,249,247,0.78) 0%, rgba(250,249,247,0.28) 55%, rgba(250,249,247,0) 78%)',
           }}
         />
 
@@ -384,82 +542,102 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* ============================================================ */}
       {/* SERVICES SECTION */}
       {/* ============================================================ */}
-      <section id="services" className="relative z-10 bg-neutral-50 border-t border-neutral-200">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-          <div className="mb-16 md:mb-24">
-            <p className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-400 mb-4">
-              WHAT WE DO
+      <section ref={servicesRef} id="services" className="relative z-10 bg-black text-white">
+        <div data-split-scrub className="flex flex-col justify-center px-6 py-24 md:px-12 md:py-32">
+          <div className="relative mx-auto w-full max-w-[1400px]">
+            <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
+              02 — Services
             </p>
-            <h2 className="font-light text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] leading-tight text-black max-w-[700px]">
-              Digital Solutions That<br />Drive Growth
+            <div className="relative mb-10">
+              <div data-rule-line className="h-px w-full bg-white/20" />
+            </div>
+            <h2 className="text-white">
+              <SplitLine
+                text="DIGITAL"
+                shift={1}
+                className="font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold tracking-tight"
+              />
+              <SplitLine
+                text="SOLUTIONS"
+                shift={-1}
+                className="-mt-[0.02em] font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-bold tracking-tight"
+              />
+              <SplitLine
+                text="THAT GROW"
+                shift={1}
+                className="-mt-[0.02em] font-syne text-[clamp(2.4rem,7.4vw,5.8rem)] font-semibold italic tracking-tight"
+              />
             </h2>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="px-6 pb-24 md:px-12 md:pb-32">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3">
             {[
               {
                 icon: BarChart3,
                 title: 'Digital Marketing',
-                desc: 'Strategic SEO, social media campaigns, and performance marketing to amplify your brand reach and drive measurable ROI.',
+                desc: 'SEO, social, and performance campaigns that amplify reach and turn attention into measurable ROI.',
                 tag: 'GROWTH',
               },
               {
                 icon: Bot,
                 title: 'AI-Generated Ads',
-                desc: 'Leverage cutting-edge AI to create high-converting ad creatives, copy, and campaigns at scale — faster than ever.',
+                desc: 'High-converting creatives, copy, and campaigns at scale — built with AI, directed by humans.',
                 tag: 'AI POWERED',
               },
               {
                 icon: Globe,
                 title: 'Website Development',
-                desc: 'Modern, responsive websites built with the latest technologies. From landing pages to full-stack web applications.',
+                desc: 'Modern, responsive sites from landing pages to full-stack products that load fast and convert.',
                 tag: 'WEB',
               },
               {
                 icon: Smartphone,
                 title: 'Mobile App Development',
-                desc: 'Native and cross-platform iOS & Android applications with stunning UI, smooth performance, and scalable architecture.',
+                desc: 'Native and cross-platform iOS & Android apps with sharp UI, smooth motion, and room to scale.',
                 tag: 'MOBILE',
               },
               {
                 icon: Presentation,
                 title: 'Presentation Design',
-                desc: 'Pitch decks, corporate presentations, and investor materials designed to captivate your audience and close deals.',
+                desc: 'Pitch decks and investor materials designed to hold a room and close the conversation.',
                 tag: 'DESIGN',
               },
               {
                 icon: Palette,
                 title: 'Branding & UI/UX',
-                desc: 'Complete brand identity systems — logo design, visual guidelines, and user experience design that leaves lasting impressions.',
+                desc: 'Identity systems, visual language, and product UX that make a brand feel inevitable.',
                 tag: 'CREATIVE',
               },
             ].map((service, i) => {
               const Icon = service.icon;
               return (
-                <div
-                  key={i}
-                  className="group relative p-8 rounded-2xl bg-white border border-neutral-200/80 hover:border-neutral-300 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
+                <article
+                  key={service.title}
+                  data-service-card
+                  className="group relative overflow-hidden border border-white/10 bg-white/[0.04] p-7 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.08] md:p-8"
                 >
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-black/0 via-black to-black/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-neutral-100 group-hover:bg-black transition-colors duration-300 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-neutral-700 group-hover:text-white transition-colors duration-300" />
+                  <span className="absolute left-0 top-0 h-full w-[2px] origin-top scale-y-0 bg-[#E63946] transition-transform duration-500 group-hover:scale-y-100" />
+                  <div className="mb-8 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-[#E63946] group-hover:bg-[#E63946]">
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <span className="font-mono-custom text-[10px] uppercase tracking-[0.3em] text-neutral-400">
-                      {service.tag}
+                    <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
+                      ({String(i + 1).padStart(2, '0')}) {service.tag}
                     </span>
                   </div>
-                  <h3 className="text-lg font-medium text-black mb-3">
+                  <h3 className="font-syne text-xl font-semibold tracking-tight text-white md:text-2xl">
                     {service.title}
                   </h3>
-                  <p className="text-sm text-neutral-500 leading-relaxed mb-6">
+                  <p className="mt-4 text-sm leading-relaxed text-white/50">
                     {service.desc}
                   </p>
-                  <div className="flex items-center gap-2 text-xs font-mono-custom uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">
-                    <span>Learn More</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  <div className="mt-8 flex items-center gap-2 font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40 transition-colors group-hover:text-white">
+                    <span>Learn more</span>
+                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
@@ -469,205 +647,264 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* ============================================================ */}
       {/* ABOUT SECTION */}
       {/* ============================================================ */}
-      <section id="about" className="relative z-10 bg-white border-t border-neutral-200">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
-            <div>
-              <p className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-400 mb-4">
-                ABOUT US
+      <section ref={aboutRef} id="about" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
+        <div data-split-scrub className="relative px-5 pt-24 pb-6 md:px-10 md:pt-28 md:pb-8">
+          <div className="relative">
+            <p className="absolute right-0 top-1 z-10 hidden max-w-[14rem] text-right font-mono-custom text-[9px] uppercase leading-relaxed tracking-[0.22em] text-[#111111]/55 md:block">
+              Any Things Solution creates digital paths for businesses &amp; people desiring a shift. Working worldwide.
+            </p>
+
+            <h2 className="text-[#111111]">
+              <SplitLine
+                text="ABOUT"
+                shift={1}
+                className="font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold tracking-tight"
+              />
+              <SplitLine
+                text="THE SHIFT"
+                shift={-1}
+                className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-bold tracking-tight"
+              />
+              <SplitLine
+                text="WE GROW"
+                shift={1}
+                className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-semibold italic tracking-tight"
+              />
+            </h2>
+          </div>
+
+          <div className="relative mt-8 md:mt-10">
+            <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
+              01 — Concept
+            </p>
+            <div className="relative">
+              <div data-rule-line className="h-px w-full bg-[#111111]/20" />
+            </div>
+          </div>
+        </div>
+
+        <div id="about-body" className="relative px-6 pb-16 pt-6 md:px-12 md:pb-20 md:pt-8">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
+            <h3 className="font-syne text-[clamp(2.4rem,6vw,5.5rem)] font-semibold leading-[0.95] tracking-tight text-[#111111] lg:col-span-8">
+              We build digital
+              <br />
+              experiences that
+              <br />
+              help you grow.
+            </h3>
+
+            <div className="flex flex-col justify-end lg:col-span-4 lg:pb-2">
+              <p className="max-w-[34rem] text-[15px] leading-relaxed text-[#111111]/60 lg:ml-auto lg:text-right">
+                Any Things Solution is a full-service digital agency. From AI-driven campaigns to custom web and mobile products, we build the paths that help startups and enterprises scale — not just function.
               </p>
-              <h2 className="font-light text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] leading-tight text-black mb-8">
-                We Build Digital<br />Experiences
-              </h2>
-              <p className="text-neutral-500 leading-relaxed mb-6 max-w-[500px]">
-                Any Things Solution is a full-service digital agency specializing in transforming ideas into powerful digital products. From AI-driven marketing campaigns to custom mobile applications, we deliver end-to-end solutions that help startups and enterprises scale.
-              </p>
-              <p className="text-neutral-500 leading-relaxed mb-10 max-w-[500px]">
-                Our team of designers, developers, and strategists work together to create experiences that are not just functional — but truly exceptional.
+              <p className="mt-5 max-w-[34rem] text-[15px] leading-relaxed text-[#111111]/60 lg:ml-auto lg:text-right">
+                Designers, developers, and strategists in one room. One shift at a time.
               </p>
               <button
                 onClick={() => scrollToSection('contact')}
-                className="flex items-center gap-3 bg-black hover:bg-neutral-800 text-white text-sm font-mono-custom uppercase font-bold tracking-widest px-8 py-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+                className="mt-10 inline-flex items-center gap-3 self-start bg-[#111111] px-8 py-3 font-mono-custom text-xs uppercase tracking-[0.28em] text-white transition-transform hover:scale-[1.03] active:scale-95 lg:self-end"
               >
-                <span>Get In Touch</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Get in Touch</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              {[
-                { stat: '150+', label: 'PROJECTS DELIVERED' },
-                { stat: '50+', label: 'HAPPY CLIENTS' },
-                { stat: '12+', label: 'TEAM MEMBERS' },
-                { stat: '3+', label: 'YEARS EXPERIENCE' },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="p-8 rounded-2xl bg-neutral-50 border border-neutral-200/80 text-center hover:shadow-lg transition-all duration-300"
-                >
-                  <span className="font-light text-[2.5rem] md:text-[3rem] text-black leading-none block">
-                    {item.stat}
-                  </span>
-                  <p className="font-mono-custom text-[10px] uppercase tracking-[0.3em] text-neutral-400 mt-3">
-                    {item.label}
-                  </p>
-                </div>
+          <div className="mx-auto mt-16 grid max-w-[1400px] grid-cols-2 border-t border-[#111111]/15 md:mt-20 md:grid-cols-4">
+            {[
+              { stat: '150+', label: 'Projects delivered' },
+              { stat: '50+', label: 'Happy clients' },
+              { stat: '12+', label: 'Team members' },
+              { stat: '3+', label: 'Years experience' },
+            ].map((item, i) => (
+              <div
+                key={item.label}
+                className={`px-4 py-8 md:px-8 ${i !== 0 ? 'border-l border-[#111111]/15' : ''}`}
+              >
+                <span className="block font-syne text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-none tracking-tight text-[#111111]">
+                  {item.stat}
+                </span>
+                <p className="mt-4 font-mono-custom text-[10px] uppercase tracking-[0.28em] text-[#111111]/45">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          data-about-marquee
+          className="relative w-full overflow-hidden bg-[#111111] py-16 md:py-24"
+        >
+          <div className="absolute left-0 right-0 top-0">
+            <div className="h-px w-full bg-white/20" />
+          </div>
+
+          <div className="flex overflow-hidden whitespace-nowrap">
+            <div className="about-marquee-left flex w-max items-baseline font-syne text-[clamp(3.2rem,10vw,8rem)] font-semibold italic uppercase leading-[0.9] tracking-tight text-white">
+              {[0, 1].map((loop) => (
+                <span key={`serif-${loop}`} className="flex shrink-0 items-baseline" aria-hidden={loop === 1}>
+                  {['Perspective', 'Growth', 'Boundary', 'Intelligence', 'Craft'].map((word) => (
+                    <span key={`${loop}-${word}`} className="px-[0.14em]">
+                      {word}
+                      <span className="text-white/30"> — </span>
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-2 flex overflow-hidden whitespace-nowrap">
+            <div className="about-marquee-right flex w-max items-baseline font-sans text-[clamp(2.2rem,7vw,5.5rem)] font-medium uppercase leading-[0.9] tracking-tight text-white">
+              {[0, 1].map((loop) => (
+                <span key={`sans-${loop}`} className="flex shrink-0 items-baseline" aria-hidden={loop === 1}>
+                  {['Digital Experience', 'Any Things Solution', 'Virtual Products', 'AI Ads', 'Mobile Apps'].map((word) => (
+                    <span key={`${loop}-${word}`} className="px-[0.16em]">
+                      {word}
+                      <span className="text-white/30"> — </span>
+                    </span>
+                  ))}
+                </span>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* PORTFOLIO SECTION */}
-      {/* ============================================================ */}
-      <section id="portfolio" className="relative z-10 bg-neutral-50 border-t border-neutral-200">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-          <div className="mb-16 md:mb-24">
-            <p className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-400 mb-4">
-              OUR WORK
-            </p>
-            <h2 className="font-light text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] leading-tight text-black max-w-[700px]">
-              Selected Projects
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {[
-              {
-                title: 'E-Commerce Platform',
-                category: 'Web Development',
-                desc: 'Full-stack marketplace with AI-powered product recommendations, real-time analytics, and seamless payment integration.',
-                tags: ['React', 'Node.js', 'AI'],
-                gradient: 'from-violet-100 to-indigo-100',
-              },
-              {
-                title: 'FinTech Mobile App',
-                category: 'Mobile Development',
-                desc: 'Cross-platform banking app with biometric auth, instant transfers, budget tracking, and investment portfolio management.',
-                tags: ['React Native', 'Swift', 'Kotlin'],
-                gradient: 'from-amber-100 to-orange-100',
-              },
-              {
-                title: 'AI Ad Campaign Suite',
-                category: 'AI & Marketing',
-                desc: 'End-to-end AI-powered advertising platform that generates, tests, and optimizes creative assets across all channels.',
-                tags: ['AI/ML', 'Python', 'Analytics'],
-                gradient: 'from-emerald-100 to-teal-100',
-              },
-            ].map((project, i) => (
-              <div
-                key={i}
-                className="group rounded-2xl overflow-hidden border border-neutral-200/80 bg-white hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
-                <div className={`h-48 bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-                  <span className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-500">
-                    {project.category}
-                  </span>
-                </div>
-                <div className="p-8">
-                  <h3 className="text-lg font-medium text-black mb-3 group-hover:text-neutral-700 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-neutral-500 leading-relaxed mb-6">
-                    {project.desc}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 rounded-full bg-neutral-100 text-[10px] font-mono-custom uppercase tracking-wider text-neutral-500"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TiltPortfolioSection />
 
       {/* ============================================================ */}
       {/* CONTACT SECTION */}
       {/* ============================================================ */}
-      <section id="contact" className="relative z-10 bg-neutral-950 text-white border-t border-neutral-800">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24">
-            <div>
-              <p className="font-mono-custom text-xs uppercase tracking-[0.3em] text-neutral-500 mb-4">
-                GET IN TOUCH
-              </p>
-              <h2 className="font-light text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] leading-tight text-white mb-8">
-                Let's Build Something<br />Amazing Together
+      <section id="contact" className="relative z-10 bg-black text-white">
+        <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
+          <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
+            03 — Contact
+          </p>
+          <div className="relative mb-12 md:mb-16">
+            <div data-rule-line className="h-px w-full bg-white/20" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-10">
+            <div className="lg:col-span-5">
+              <h2 className="font-syne text-[clamp(2.6rem,7vw,5.6rem)] font-semibold leading-[0.92] tracking-tight">
+                Let&apos;s build
+                <br />
+                the next
+                <br />
+                <span className="italic">shift.</span>
               </h2>
-              <p className="text-neutral-400 leading-relaxed mb-12 max-w-[450px]">
-                Have a project in mind? We'd love to hear about it. Reach out and let's turn your vision into reality.
+              <p className="mt-8 max-w-[28rem] text-[15px] leading-relaxed text-white/50">
+                Have a project in mind? Tell us what you want to grow — we&apos;ll map the digital path.
               </p>
 
-              <div className="space-y-6">
-                <a href="mailto:hello@anythingssolution.com" className="flex items-center gap-4 text-neutral-300 hover:text-white transition-colors group">
-                  <div className="w-10 h-10 rounded-lg bg-neutral-800 group-hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm">hello@anythingssolution.com</span>
-                </a>
-                <a href="tel:+911234567890" className="flex items-center gap-4 text-neutral-300 hover:text-white transition-colors group">
-                  <div className="w-10 h-10 rounded-lg bg-neutral-800 group-hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm">+91 123 456 7890</span>
-                </a>
-                <div className="flex items-center gap-4 text-neutral-300">
-                  <div className="w-10 h-10 rounded-lg bg-neutral-800 flex items-center justify-center">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm">India</span>
-                </div>
-              </div>
+              <ul className="mt-12 divide-y divide-white/10 border-y border-white/10">
+                {[
+                  { icon: Mail, label: 'Email', value: 'hello@anythingssolution.com', href: 'mailto:hello@anythingssolution.com' },
+                  { icon: Phone, label: 'Phone', value: '+91 123 456 7890', href: 'tel:+911234567890' },
+                  { icon: MapPin, label: 'Studio', value: 'India', href: null },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const inner = (
+                    <>
+                      <span className="flex h-10 w-10 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-[#E63946] group-hover:bg-[#E63946]">
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
+                          {item.label}
+                        </span>
+                        <span className="mt-1 block truncate text-sm text-white/80">{item.value}</span>
+                      </span>
+                    </>
+                  );
+                  return (
+                    <li key={item.label}>
+                      {item.href ? (
+                        <a href={item.href} className="group flex items-center gap-4 py-5 transition-colors hover:text-white">
+                          {inner}
+                        </a>
+                      ) : (
+                        <div className="group flex items-center gap-4 py-5">{inner}</div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
-            <div className="flex flex-col justify-center">
-              <div className="p-8 rounded-2xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-lg font-medium text-white mb-6">Send us a message</h3>
-                <div className="space-y-4">
+            <form
+              className="group/form relative overflow-hidden border border-white/10 bg-white/[0.04] p-7 backdrop-blur-md md:p-10 lg:col-span-7"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <span className="absolute left-0 top-0 h-full w-[2px] bg-[#E63946]" aria-hidden="true" />
+
+              <div className="mb-10 flex items-end justify-between gap-4">
+                <h3 className="font-syne text-2xl font-semibold tracking-tight md:text-3xl">Send a message</h3>
+                <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
+                  (04) Inquire
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                <label className="block">
+                  <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Name</span>
                   <input
                     type="text"
-                    placeholder="Your Name"
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-neutral-500 transition-colors"
+                    name="name"
+                    autoComplete="name"
+                    placeholder="Your name"
+                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
                   />
+                </label>
+                <label className="block">
+                  <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Email</span>
                   <input
                     type="email"
-                    placeholder="Your Email"
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-neutral-500 transition-colors"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="you@studio.com"
+                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
                   />
-                  <textarea
-                    placeholder="Tell us about your project..."
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 text-sm focus:outline-none focus:border-neutral-500 transition-colors resize-none"
-                  />
-                  <button className="w-full py-3 rounded-full bg-white text-black text-xs font-mono-custom uppercase tracking-widest font-bold hover:bg-neutral-200 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer">
-                    Send Message
-                  </button>
-                </div>
+                </label>
               </div>
-            </div>
+
+              <label className="mt-8 block">
+                <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Project</span>
+                <textarea
+                  name="message"
+                  rows={4}
+                  placeholder="What do you want to build?"
+                  className="mt-3 w-full resize-none border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="mt-10 inline-flex items-center gap-3 bg-white px-8 py-3.5 font-mono-custom text-xs uppercase tracking-[0.28em] text-black transition-transform hover:scale-[1.03] active:scale-95"
+              >
+                <span>Send Message</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </button>
+            </form>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-neutral-800">
-          <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-mono-custom text-xs tracking-[0.2em] text-neutral-500 uppercase">
-              © 2025 Any Things Solution. All Rights Reserved.
+        <div className="relative px-6 md:px-12">
+          <div className="relative mx-auto max-w-[1400px]">
+            <div className="h-px w-full bg-white/15" />
+          </div>
+          <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-6 py-8 md:flex-row md:items-center">
+            <p className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">
+              © 2026 Any Things Solution
             </p>
             <div className="flex items-center gap-6">
               {['Twitter', 'LinkedIn', 'Instagram', 'GitHub'].map((social) => (
                 <a
                   key={social}
                   href="#"
-                  className="font-mono-custom text-[10px] uppercase tracking-[0.2em] text-neutral-600 hover:text-white transition-colors cursor-pointer"
+                  className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35 transition-colors hover:text-white"
                 >
                   {social}
                 </a>

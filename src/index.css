@@ -1,9 +1,13 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    overflow-x: clip;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   h1, h2, h3, .font-syne {
@@ -62,4 +66,24 @@
     rgba(255, 255, 255, 0.04) 0 1px,
     transparent 1px 3px
   );
+}
+
+@keyframes aboutMarqueeLeft {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes aboutMarqueeRight {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.about-marquee-left {
+  animation: aboutMarqueeLeft 42s linear infinite;
+  will-change: transform;
+}
+
+.about-marquee-right {
+  animation: aboutMarqueeRight 36s linear infinite;
+  will-change: transform;
 }

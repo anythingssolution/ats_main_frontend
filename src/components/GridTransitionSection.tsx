@@ -62,6 +62,9 @@ export const GridTransitionSection: React.FC<GridTransitionSectionProps> = ({
         },
       });
 
+      // Brief hold so the intro text stays sharp for a moment before blurring
+      tl.to({}, { duration: 0.2 });
+
       // 1) Intro blurs out
       tl.to(introText, {
         autoAlpha: 0,
@@ -133,7 +136,7 @@ export const GridTransitionSection: React.FC<GridTransitionSectionProps> = ({
     <section
       ref={sectionRef}
       data-grid-transition
-      className="relative z-30 h-[400vh] w-full"
+      className="relative z-10 h-[400vh] w-full"
       aria-label="Grid transition"
     >
       {/* One panel only — sticky keeps it in view while the tall section scrolls */}
