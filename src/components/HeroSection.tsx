@@ -5,6 +5,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Mail, Phone, MapPin, Globe, Smartp
 import { GridTransitionSection } from './GridTransitionSection';
 import { FloatingImagesBackground } from './FloatingImagesBackground';
 import { TiltPortfolioSection } from './TiltPortfolioSection';
+import { CaseStudiesSection, OfferSections } from './OfferSections';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,6 +85,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     triggers.push(
       ScrollTrigger.create({
         trigger: '#services',
+        start: 'top top+=80',
+        end: 'bottom top+=80',
+        onEnter: () => setNavOnDark(true),
+        onEnterBack: () => setNavOnDark(true),
+        onLeave: () => setNavOnDark(false),
+        onLeaveBack: () => setNavOnDark(false),
+      })
+    );
+
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: '#offer',
+        start: 'top top+=80',
+        end: 'bottom top+=80',
+        onEnter: () => setNavOnDark(true),
+        onEnterBack: () => setNavOnDark(true),
+        onLeave: () => setNavOnDark(false),
+        onLeaveBack: () => setNavOnDark(false),
+      })
+    );
+
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: '#method',
         start: 'top top+=80',
         end: 'bottom top+=80',
         onEnter: () => setNavOnDark(true),
@@ -401,7 +426,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       >
         {/* Left: Nav links */}
         <nav className="secondary-ui hidden md:flex items-center gap-8 z-10">
-          {['Services', 'About', 'Portfolio'].map((item) => (
+          {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
             <button
               key={item}
               onClick={() => scrollToSection(item.toLowerCase())}
@@ -644,6 +669,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         </div>
       </section>
 
+      <OfferSections />
+
       {/* ============================================================ */}
       {/* ABOUT SECTION */}
       {/* ============================================================ */}
@@ -774,13 +801,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
       <TiltPortfolioSection />
 
+      <CaseStudiesSection />
+
       {/* ============================================================ */}
       {/* CONTACT SECTION */}
       {/* ============================================================ */}
       <section id="contact" className="relative z-10 bg-black text-white">
         <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
           <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-            03 — Contact
+            07 — Contact
           </p>
           <div className="relative mb-12 md:mb-16">
             <div data-rule-line className="h-px w-full bg-white/20" />

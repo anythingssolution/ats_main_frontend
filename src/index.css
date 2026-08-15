@@ -2,12 +2,11 @@
 
 @layer base {
   html {
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    overflow-x: clip;
   }
 
   h1, h2, h3, .font-syne {
