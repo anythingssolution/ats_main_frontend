@@ -98,7 +98,10 @@ export const OfferSections: React.FC = () => {
         onEnterBack: pick,
         onRefresh: pick,
       });
+    }, root);
 
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', () => {
       ScrollTrigger.create({
         trigger: method,
         start: 'top top',
@@ -111,7 +114,7 @@ export const OfferSections: React.FC = () => {
           ease: 'power3.inOut',
         },
       });
-    }, root);
+    });
 
     pick();
     window.addEventListener('scroll', pick, { passive: true });
@@ -122,6 +125,7 @@ export const OfferSections: React.FC = () => {
 
     return () => {
       window.removeEventListener('scroll', pick);
+      mm.revert();
       ctx.revert();
     };
   }, []);
@@ -131,7 +135,7 @@ export const OfferSections: React.FC = () => {
       <section id="offer" className="relative z-10 bg-black text-white">
         <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
           <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-            03 — Offer
+            III — Offer
           </p>
           <div className="relative mb-12 md:mb-16">
             <div data-rule-line className="h-px w-full bg-white/20" />
@@ -161,7 +165,7 @@ export const OfferSections: React.FC = () => {
       <section id="audience" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
         <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
           <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-            04 — Clients
+            IV — Clients
           </p>
           <div className="relative mb-10">
             <div data-rule-line className="h-px w-full bg-[#111111]/20" />
@@ -200,10 +204,11 @@ export const OfferSections: React.FC = () => {
       </section>
 
       <section id="method" className="relative z-10 bg-black text-white">
-        <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 md:grid-cols-12">
-          <div className="flex flex-col justify-center px-6 py-16 md:sticky md:top-0 md:col-span-5 md:h-screen md:px-12">
+        <div className="mx-auto w-full max-w-[1400px] md:grid md:grid-cols-12">
+          {/* Desktop — sticky step index */}
+          <div className="hidden flex-col justify-center px-6 py-16 md:sticky md:top-0 md:col-span-5 md:flex md:h-screen md:px-12">
             <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-              05 — Method
+              V — Method
             </p>
             <p className="font-syne text-[clamp(4.5rem,12vw,9rem)] font-semibold leading-none tracking-tight text-white/20">
               {STEPS[activeStep].n}
@@ -225,28 +230,41 @@ export const OfferSections: React.FC = () => {
             </div>
           </div>
 
+          {/* Mobile — compact intro only */}
+          <div className="px-6 pb-6 pt-20 md:hidden">
+            <p className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
+              V — Method
+            </p>
+            <h2 className="font-syne text-[clamp(2rem,8vw,2.8rem)] font-semibold leading-[0.95] tracking-tight">
+              How we work
+            </h2>
+            <p className="mt-3 max-w-[22rem] text-sm leading-relaxed text-white/50">
+              Five steps. Enter at any point — most start at the table.
+            </p>
+          </div>
+
           <div className="md:col-span-7 md:border-l md:border-white/10">
             {STEPS.map((step, i) => (
               <article
                 key={step.title}
                 data-process-step
-                className="flex min-h-screen flex-col justify-center px-6 py-16 md:px-12"
+                className="flex flex-col justify-center border-t border-white/10 px-6 py-10 md:min-h-screen md:border-t-0 md:px-12 md:py-16"
               >
                 <div
                   data-process-inner
                   className={`transition-[filter,transform] duration-500 ${
                     activeStep === i
-                      ? 'translate-y-0 [filter:drop-shadow(0_0_34px_rgba(255,255,255,0.35))]'
-                      : 'translate-y-1'
+                      ? 'translate-y-0 md:[filter:drop-shadow(0_0_34px_rgba(255,255,255,0.35))]'
+                      : 'translate-y-0'
                   }`}
                 >
                   <span className="font-mono-custom text-[10px] uppercase tracking-[0.32em] text-white/70">
                     Step {step.n}
                   </span>
-                  <h3 className="mt-6 font-syne text-[clamp(2.4rem,6vw,4.8rem)] font-semibold leading-[0.92] tracking-tight text-white">
+                  <h3 className="mt-4 font-syne text-[clamp(1.9rem,7vw,4.8rem)] font-semibold leading-[0.92] tracking-tight text-white md:mt-6">
                     {step.title}
                   </h3>
-                  <p className="mt-6 max-w-[32rem] text-[15px] leading-relaxed text-white/70">
+                  <p className="mt-4 max-w-[32rem] text-[15px] leading-relaxed text-white/70 md:mt-6">
                     {step.body}
                   </p>
                 </div>
@@ -321,7 +339,7 @@ export const CaseStudiesSection: React.FC = () => {
     <section ref={rootRef} id="work" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
       <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
         <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-          06 — Work
+          VI — Work
         </p>
         <div className="relative mb-10">
           <div data-rule-line className="h-px w-full bg-[#111111]/20" />

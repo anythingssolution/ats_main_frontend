@@ -214,23 +214,24 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       if (!hero || !header || !lettersWrapper || !logoTarget) return;
 
       const ctx = gsap.context(() => {
-        // Measure positions
-        const wrapperRect = lettersWrapper.getBoundingClientRect();
+        const lettersRow = lettersWrapper.querySelector('div');
+        if (!lettersRow) return;
+
+        // Measure the letter row — not the full-screen wrapper (that made ATS microscopic on mobile)
+        const wrapperRect = lettersRow.getBoundingClientRect();
         const targetRect = logoTarget.getBoundingClientRect();
 
-        // Where the wrapper currently is (center of screen)
         const wrapperCenterX = wrapperRect.left + wrapperRect.width / 2;
         const wrapperCenterY = wrapperRect.top + wrapperRect.height / 2;
 
-        // Where it needs to go (center of nav logo slot)
         const targetCenterX = targetRect.left + targetRect.width / 2;
         const targetCenterY = targetRect.top + targetRect.height / 2;
 
-        // Scale: target height / current height
-        const targetHeight = 48; // desired final text height in px
+        const isMobile = window.innerWidth < 768;
+        // Match hero quote size on mobile: text-lg ≈ 18px cap height
+        const targetHeight = isMobile ? 18 : 48;
         const scaleFactor = targetHeight / wrapperRect.height;
 
-        // Translation deltas (from current center to target center)
         const deltaX = targetCenterX - wrapperCenterX;
         const deltaY = targetCenterY - wrapperCenterY;
 
@@ -289,9 +290,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             0.12
           )
           .to(
-            lettersWrapper.querySelector('div'),
+            lettersRow,
             {
-              gap: '0.5rem',
+              gap: isMobile ? '0.45rem' : '0.5rem',
               ease: 'none',
             },
             0
@@ -421,7 +422,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* FIXED HEADER — always transparent, colors follow section */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 overflow-visible border-0"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 max-md:pb-3 max-md:pt-7"
         style={{ backgroundColor: 'transparent', borderBottom: 'none', backdropFilter: 'none' }}
       >
         {/* Left: Nav links */}
@@ -442,9 +443,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         </nav>
 
         {/* Center: True viewport center */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-[200px] sm:min-w-[280px] min-h-[40px] pointer-events-none px-2">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-[140px] sm:min-w-[200px] md:min-w-[280px] min-h-[32px] md:min-h-[40px] pointer-events-none px-2 max-md:translate-y-[2px]">
           <div
-            className={`header-center-text text-center font-mono-custom uppercase tracking-[0.2em] text-[10px] sm:text-xs font-bold leading-snug transition-colors duration-300 ${
+            className={`header-center-text text-center font-mono-custom uppercase tracking-[0.2em] text-[10px] sm:text-xs font-bold leading-snug transition-colors duration-300 max-md:max-w-[9rem] max-md:text-[9px] max-md:leading-tight ${
               navOnDark ? 'text-white' : 'text-neutral-900'
             }`}
           >
@@ -452,13 +453,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           </div>
           <div
             ref={headerLogoTargetRef}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            className="absolute inset-x-0 top-1 bottom-0 flex items-center justify-center pointer-events-none md:inset-0"
             aria-hidden="true"
           />
         </div>
 
-        {/* Right: Contact CTA */}
-        <div className="secondary-ui z-10 ml-auto">
+        {/* Right: Contact CTA — desktop only; hero uses bottom CTA on mobile */}
+        <div className="secondary-ui z-10 ml-auto hidden md:block">
           <button
             onClick={() => scrollToSection('contact')}
             className={`flex items-center gap-2 text-xs font-mono-custom uppercase font-bold tracking-widest px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
@@ -571,7 +572,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         <div data-split-scrub className="flex flex-col justify-center px-6 py-24 md:px-12 md:py-32">
           <div className="relative mx-auto w-full max-w-[1400px]">
             <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-              02 — Services
+              II — Services
             </p>
             <div className="relative mb-10">
               <div data-rule-line className="h-px w-full bg-white/20" />
@@ -702,7 +703,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
           <div className="relative mt-8 md:mt-10">
             <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-              01 — Concept
+              I — Concept
             </p>
             <div className="relative">
               <div data-rule-line className="h-px w-full bg-[#111111]/20" />
@@ -809,7 +810,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       <section id="contact" className="relative z-10 bg-black text-white">
         <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
           <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-            07 — Contact
+            VII — Contact
           </p>
           <div className="relative mb-12 md:mb-16">
             <div data-rule-line className="h-px w-full bg-white/20" />
@@ -872,7 +873,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               <div className="mb-10 flex items-end justify-between gap-4">
                 <h3 className="font-syne text-2xl font-semibold tracking-tight md:text-3xl">Send a message</h3>
                 <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
-                  (04) Inquire
+                  (IV) Inquire
                 </span>
               </div>
 
