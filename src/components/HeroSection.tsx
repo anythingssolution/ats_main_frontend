@@ -25,14 +25,14 @@ const SplitLine: React.FC<{ text: string; className?: string; shift?: number }> 
         <span
           key={i}
           data-split-band
+          data-text={text}
+          aria-hidden="true"
           className="absolute inset-0 block leading-none will-change-transform"
           style={{
             clipPath: `inset(${topClip}% 0 ${bottomClip}% 0)`,
             transform: `translateX(${dir * 16}vw)`,
           }}
-        >
-          {text}
-        </span>
+        />
       );
     })}
   </div>
@@ -449,7 +449,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               navOnDark ? 'text-white' : 'text-neutral-900'
             }`}
           >
-            Your business · Our digital engine
+            Your problems · Solved with tech
           </div>
           <div
             ref={headerLogoTargetRef}
@@ -531,17 +531,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           }}
         />
 
-        {/* Attract copy */}
+        {/* Attract copy — H1 stays out of the fade layer so crawlers always see it */}
+        <h1 className="pointer-events-none absolute left-0 right-0 top-24 z-[65] mx-auto max-w-[820px] px-6 text-center font-syne text-lg font-medium leading-[1.25] text-neutral-900 sm:text-xl md:top-28 md:px-12 md:text-2xl">
+          Any Things Solution — a tech agency that solves business problems with technology
+        </h1>
         <div className="hero-secondary-ui absolute inset-0 z-[65] pointer-events-none">
-          {/* Quote — above Any Things Solution */}
-          <div className="absolute left-0 right-0 top-24 md:top-28 px-6 md:px-12">
-            <blockquote className="mx-auto max-w-[820px] text-center font-syne text-lg sm:text-xl md:text-2xl font-medium leading-[1.25] text-neutral-900">
-              &ldquo;Bring your business. We&apos;ll build every digital path to{' '}
-              <span className="bg-gradient-to-r from-brand to-brand-light bg-clip-text text-transparent">grow it.</span>&rdquo;
-            </blockquote>
-          </div>
-
-          {/* Scroll arrow — bottom right */}
           <button
             title="Scroll to explore"
             onClick={() => scrollToSection('services')}
@@ -577,22 +571,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             <div className="relative mb-10">
               <div data-rule-line className="h-px w-full bg-white/20" />
             </div>
-            <h2 className="text-white">
-              <SplitLine
-                text="DIGITAL"
-                shift={1}
-                className="font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold tracking-tight"
-              />
-              <SplitLine
-                text="SOLUTIONS"
-                shift={-1}
-                className="-mt-[0.02em] font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-bold tracking-tight"
-              />
-              <SplitLine
-                text="THAT GROW"
-                shift={1}
-                className="-mt-[0.02em] font-syne text-[clamp(2.4rem,7.4vw,5.8rem)] font-semibold italic tracking-tight"
-              />
+            <h2 className="relative m-0 text-white">
+              <span className="pointer-events-none absolute inset-0 z-0 font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold leading-[0.88] tracking-tight text-transparent">
+                Digital solutions that grow
+              </span>
+              <span className="relative z-[1] block" aria-hidden="true">
+                <SplitLine
+                  text="DIGITAL"
+                  shift={1}
+                  className="font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold tracking-tight"
+                />
+                <SplitLine
+                  text="SOLUTIONS"
+                  shift={-1}
+                  className="-mt-[0.02em] font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-bold tracking-tight"
+                />
+                <SplitLine
+                  text="THAT GROW"
+                  shift={1}
+                  className="-mt-[0.02em] font-syne text-[clamp(2.4rem,7.4vw,5.8rem)] font-semibold italic tracking-tight"
+                />
+              </span>
             </h2>
           </div>
         </div>
@@ -601,40 +600,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3">
             {[
               {
-                icon: BarChart3,
-                title: 'Digital Marketing',
-                desc: 'SEO, social, and performance campaigns that amplify reach and turn attention into measurable ROI.',
-                tag: 'GROWTH',
-              },
-              {
-                icon: Bot,
-                title: 'AI-Generated Ads',
-                desc: 'High-converting creatives, copy, and campaigns at scale — built with AI, directed by humans.',
-                tag: 'AI POWERED',
-              },
-              {
                 icon: Globe,
-                title: 'Website Development',
-                desc: 'Modern, responsive sites from landing pages to full-stack products that load fast and convert.',
-                tag: 'WEB',
+                title: 'Software & Digital Products',
+                desc: 'Custom software and digital products built to solve the business problem — not to add another tool to the stack.',
+                tag: 'PRODUCT',
               },
               {
                 icon: Smartphone,
                 title: 'Mobile App Development',
-                desc: 'Native and cross-platform iOS & Android apps with sharp UI, smooth motion, and room to scale.',
+                desc: 'Native and cross-platform iOS & Android product apps with sharp UI, smooth motion, and room to scale.',
                 tag: 'MOBILE',
               },
               {
-                icon: Presentation,
-                title: 'Presentation Design',
-                desc: 'Pitch decks and investor materials designed to hold a room and close the conversation.',
-                tag: 'DESIGN',
+                icon: Bot,
+                title: 'AI Solutions',
+                desc: 'AI systems, automation, and creatives that shift work from people to software — directed by humans.',
+                tag: 'AI POWERED',
+              },
+              {
+                icon: BarChart3,
+                title: 'Web Design & Development',
+                desc: 'Modern sites and web apps from landing pages to full-stack products that load fast and convert.',
+                tag: 'WEB',
               },
               {
                 icon: Palette,
                 title: 'Branding & UI/UX',
-                desc: 'Identity systems, visual language, and product UX that make a brand feel inevitable.',
-                tag: 'CREATIVE',
+                desc: 'Identity systems and product UX so the technology feels inevitable to use.',
+                tag: 'DESIGN',
+              },
+              {
+                icon: Presentation,
+                title: 'Growth Systems',
+                desc: 'SEO, analytics, and campaigns run on the same tech that built the product — so growth is a system, not a vendor.',
+                tag: 'GROWTH',
               },
             ].map((service, i) => {
               const Icon = service.icon;
@@ -682,22 +681,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               Any Things Solution creates digital paths for businesses &amp; people desiring a shift. Working worldwide.
             </p>
 
-            <h2 className="text-[#111111]">
-              <SplitLine
-                text="ABOUT"
-                shift={1}
-                className="font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold tracking-tight"
-              />
-              <SplitLine
-                text="THE SHIFT"
-                shift={-1}
-                className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-bold tracking-tight"
-              />
-              <SplitLine
-                text="WE GROW"
-                shift={1}
-                className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-semibold italic tracking-tight"
-              />
+            <h2 className="relative m-0 text-[#111111]">
+              <span className="pointer-events-none absolute inset-0 z-0 font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold leading-[0.88] tracking-tight text-transparent">
+                About the shift we grow
+              </span>
+              <span className="relative z-[1] block" aria-hidden="true">
+                <SplitLine
+                  text="ABOUT"
+                  shift={1}
+                  className="font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold tracking-tight"
+                />
+                <SplitLine
+                  text="THE SHIFT"
+                  shift={-1}
+                  className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-bold tracking-tight"
+                />
+                <SplitLine
+                  text="WE GROW"
+                  shift={1}
+                  className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-semibold italic tracking-tight"
+                />
+              </span>
             </h2>
           </div>
 
@@ -714,16 +718,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         <div id="about-body" className="relative px-6 pb-16 pt-6 md:px-12 md:pb-20 md:pt-8">
           <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
             <h3 className="font-syne text-[clamp(2.4rem,6vw,5.5rem)] font-semibold leading-[0.95] tracking-tight text-[#111111] lg:col-span-8">
-              We build digital
+              We solve problems
               <br />
-              experiences that
+              with technology
               <br />
-              help you grow.
+              so your business
+              <br />
+              can grow.
             </h3>
 
             <div className="flex flex-col justify-end lg:col-span-4 lg:pb-2">
               <p className="max-w-[34rem] text-[15px] leading-relaxed text-[#111111]/60 lg:ml-auto lg:text-right">
-                Any Things Solution is a full-service digital agency. From AI-driven campaigns to custom web and mobile products, we build the paths that help startups and enterprises scale — not just function.
+                Any Things Solution is a tech agency. Bring the problem — a product, a platform, an app, a system — and we solve it with technology, so startups and enterprises can grow instead of stitching vendors together.
               </p>
               <p className="mt-5 max-w-[34rem] text-[15px] leading-relaxed text-[#111111]/60 lg:ml-auto lg:text-right">
                 Designers, developers, and strategists in one room. One shift at a time.

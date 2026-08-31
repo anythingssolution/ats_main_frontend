@@ -62,7 +62,11 @@ export const TiltPortfolioSection: React.FC = () => {
 
     const updateActive = () => {
       const cards = track.querySelectorAll<HTMLElement>('[data-tilt-card]');
-      const mid = window.innerWidth * 0.42;
+      const progress = stRef.current?.progress ?? 0;
+      // Focus sits left-of-center for most of the reel, then eases right
+      // so the last card still counts as active when we stop earlier.
+      const endBlend = Math.max(0, (progress - 0.7) / 0.3);
+      const mid = window.innerWidth * (0.42 + 0.32 * endBlend);
       let best = 0;
       let bestDist = Infinity;
       cards.forEach((card, i) => {
@@ -74,14 +78,22 @@ export const TiltPortfolioSection: React.FC = () => {
           best = i;
         }
       });
+      if (progress >= 0.97) best = cards.length - 1;
       if (best !== lastActiveRef.current) {
         lastActiveRef.current = best;
         setActive(best);
       }
     };
 
-    const getTravel = () =>
-      Math.max(window.innerWidth * 0.75, track.scrollWidth - window.innerWidth * 0.22);
+    const getTravel = () => {
+      const last = track.querySelector<HTMLElement>('[data-tilt-card]:last-child');
+      const vw = window.innerWidth;
+      if (!last) return Math.max(0, track.scrollWidth - vw);
+      // Stop with the last card still in the right half — the old
+      // scrollWidth - 0.22vw pull parked it on the far left and emptied the frame.
+      const lastRight = last.offsetLeft + last.offsetWidth;
+      return Math.max(0, lastRight - vw * 0.82);
+    };
 
     const ctx = gsap.context(() => {
       const tween = gsap.fromTo(
@@ -176,8 +188,14 @@ export const TiltPortfolioSection: React.FC = () => {
       ref={sectionRef}
       data-portfolio-tilt
       className="relative z-10 h-screen w-full cursor-grab overflow-hidden bg-black select-none"
-      aria-label="Projects"
+      aria-labelledby="portfolio-heading"
     >
+      <h2
+        id="portfolio-heading"
+        className="pointer-events-none absolute left-6 top-24 z-20 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45 md:left-12"
+      >
+        Portfolio
+      </h2>
       <div
         className="absolute inset-0 flex items-center"
         style={{ perspective: '1400px', perspectiveOrigin: '40% 50%' }}

@@ -14,7 +14,7 @@ const STEPS = [
   {
     n: '02',
     title: 'Strategy',
-    body: 'Want to go deep? We go deep. Then we pick the path that saves time and money — the tech and the marketing you actually need, not a bloated stack.',
+    body: 'Want to go deep? We go deep. Then we pick the tech that actually solves it — not a bloated stack.',
   },
   {
     n: '03',
@@ -29,7 +29,7 @@ const STEPS = [
   {
     n: '05',
     title: 'Grow',
-    body: 'Digital marketing from those ads, videos, and pages. Head to toe, ongoing. One partner from first conversation to the next shift.',
+    body: 'Growth from the same product we built. Head to toe, ongoing. One partner from first conversation to the next shift.',
   },
 ];
 
@@ -50,7 +50,7 @@ const AUDIENCES = [
     n: '03',
     icon: Building2,
     title: 'Growing teams',
-    line: 'We help you replace scattered vendors with one digital path — product, ads, growth.',
+    line: 'We help you replace scattered vendors with one tech path — product, systems, growth.',
   },
 ];
 
@@ -152,10 +152,10 @@ export const OfferSections: React.FC = () => {
             </h2>
             <div data-reveal className="flex flex-col justify-end lg:col-span-5">
               <p className="text-[15px] leading-relaxed text-white/55">
-                We start at the table, not in a deck. We look at your business from the surface — and go deeper if you want. Then we choose the tech and the marketing that actually save you time and money.
+                We start at the table, not in a deck. We look at your business from the surface — and go deeper if you want. Then we choose the technology that actually solves the problem and saves you time and money.
               </p>
               <p className="mt-5 text-[15px] leading-relaxed text-white/55">
-                Need a site, an app, a brand, ads, or the whole machine? We build it. Ads and videos can be made with our tech — no studio, no camera, no extra crew. From that same work we run the digital marketing. One team. Full path. Every kind of business.
+                Need a site, an app, a product, a system, or the whole machine? We build it. One team. Full path. Every kind of business problem, solved with tech.
               </p>
             </div>
           </div>
@@ -235,9 +235,9 @@ export const OfferSections: React.FC = () => {
             <p className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
               V — Method
             </p>
-            <h2 className="font-syne text-[clamp(2rem,8vw,2.8rem)] font-semibold leading-[0.95] tracking-tight">
+            <p className="font-syne text-[clamp(2rem,8vw,2.8rem)] font-semibold leading-[0.95] tracking-tight">
               How we work
-            </h2>
+            </p>
             <p className="mt-3 max-w-[22rem] text-sm leading-relaxed text-white/50">
               Five steps. Enter at any point — most start at the table.
             </p>
@@ -299,9 +299,9 @@ const CASES = [
   {
     n: '03',
     title: 'Local growth',
-    tag: 'Ads + marketing',
+    tag: 'Ads + growth',
     problem: 'A local business was spending on ads that did not look like them, shot with gear they did not own.',
-    did: 'Surface analysis, then creatives built in-house with our tech. We ran the digital marketing from those same assets.',
+    did: 'Surface analysis, then creatives built in-house with our tech. We ran growth from those same assets.',
     result: 'Head-to-toe coverage without a camera day — time and money stayed in the business.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=70',
   },

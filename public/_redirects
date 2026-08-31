@@ -1,0 +1,5 @@
+# Serve crawl files as-is; SPA fallback last.
+/sitemap.xml  /sitemap.xml  200
+/robots.txt   /robots.txt   200
+/llms.txt     /llms.txt     200
+/*            /index.html   200

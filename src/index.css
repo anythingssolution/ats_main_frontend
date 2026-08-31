@@ -92,3 +92,8 @@
   animation: aboutMarqueeRight 36s linear infinite;
   will-change: transform;
 }
+
+[data-split-band]::before {
+  content: attr(data-text);
+  display: block;
+}
