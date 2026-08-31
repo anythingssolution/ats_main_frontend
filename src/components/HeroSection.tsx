@@ -537,7 +537,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           <div className="absolute left-0 right-0 top-24 md:top-28 px-6 md:px-12">
             <blockquote className="mx-auto max-w-[820px] text-center font-syne text-lg sm:text-xl md:text-2xl font-medium leading-[1.25] text-neutral-900">
               &ldquo;Bring your business. We&apos;ll build every digital path to{' '}
-              <span className="text-[#7B6CFF]">grow it.</span>&rdquo;
+              <span className="bg-gradient-to-r from-brand to-brand-light bg-clip-text text-transparent">grow it.</span>&rdquo;
             </blockquote>
           </div>
 
@@ -644,9 +644,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                   data-service-card
                   className="group relative overflow-hidden border border-white/10 bg-white/[0.04] p-7 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.08] md:p-8"
                 >
-                  <span className="absolute left-0 top-0 h-full w-[2px] origin-top scale-y-0 bg-[#E63946] transition-transform duration-500 group-hover:scale-y-100" />
+                  <span className="absolute left-0 top-0 h-full w-[2px] origin-top scale-y-0 bg-brand transition-transform duration-500 group-hover:scale-y-100" />
                   <div className="mb-8 flex items-start justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-[#E63946] group-hover:bg-[#E63946]">
+                    <div className="flex h-11 w-11 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-brand group-hover:bg-brand">
                       <Icon className="h-4 w-4" />
                     </div>
                     <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
@@ -838,7 +838,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                   const Icon = item.icon;
                   const inner = (
                     <>
-                      <span className="flex h-10 w-10 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-[#E63946] group-hover:bg-[#E63946]">
+                      <span className="flex h-10 w-10 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-brand group-hover:bg-brand">
                         <Icon className="h-4 w-4" />
                       </span>
                       <span className="min-w-0">
@@ -868,7 +868,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               className="group/form relative overflow-hidden border border-white/10 bg-white/[0.04] p-7 backdrop-blur-md md:p-10 lg:col-span-7"
               onSubmit={(e) => e.preventDefault()}
             >
-              <span className="absolute left-0 top-0 h-full w-[2px] bg-[#E63946]" aria-hidden="true" />
+              <span className="absolute left-0 top-0 h-full w-[2px] bg-brand" aria-hidden="true" />
 
               <div className="mb-10 flex items-end justify-between gap-4">
                 <h3 className="font-syne text-2xl font-semibold tracking-tight md:text-3xl">Send a message</h3>
@@ -885,7 +885,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                     name="name"
                     autoComplete="name"
                     placeholder="Your name"
-                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
+                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
                   />
                 </label>
                 <label className="block">
@@ -895,7 +895,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                     name="email"
                     autoComplete="email"
                     placeholder="you@studio.com"
-                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
+                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
                   />
                 </label>
               </div>
@@ -906,7 +906,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                   name="message"
                   rows={4}
                   placeholder="What do you want to build?"
-                  className="mt-3 w-full resize-none border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#E63946]"
+                  className="mt-3 w-full resize-none border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
                 />
               </label>
 
