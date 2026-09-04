@@ -93,7 +93,15 @@
   will-change: transform;
 }
 
-[data-split-band]::before {
-  content: attr(data-text);
-  display: block;
+.site-footer-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.site-footer-mark {
+  font-family: 'Syne', sans-serif;
+  transform: perspective(1200px) rotateX(8deg);
+  transform-origin: center center;
 }

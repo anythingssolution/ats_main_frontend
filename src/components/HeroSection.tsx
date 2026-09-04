@@ -425,22 +425,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 max-md:pb-3 max-md:pt-7"
         style={{ backgroundColor: 'transparent', borderBottom: 'none', backdropFilter: 'none' }}
       >
-        {/* Left: Nav links */}
-        <nav className="secondary-ui hidden md:flex items-center gap-8 z-10">
-          {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
-            <button
-              key={item}
-              onClick={() => scrollToSection(item.toLowerCase())}
-              className={`font-mono-custom text-xs uppercase tracking-[0.2em] font-medium transition-colors duration-300 cursor-pointer ${
-                navOnDark
-                  ? 'text-white/70 hover:text-white'
-                  : 'text-neutral-600 hover:text-black'
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
+        {/* Left: Logo + nav links */}
+        <div className="secondary-ui z-10 flex items-center gap-6 md:gap-10">
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="shrink-0 cursor-pointer"
+            aria-label="Any Things Solution home"
+          >
+            <img
+              src="/header-logo.png"
+              alt="ATS Anythings Solution"
+              className="h-8 w-auto sm:h-9 md:h-10"
+            />
+          </button>
+          <nav className="hidden md:flex items-center gap-8">
+            {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item.toLowerCase())}
+                className={`font-mono-custom text-xs uppercase tracking-[0.2em] font-medium transition-colors duration-300 cursor-pointer ${
+                  navOnDark
+                    ? 'text-white/70 hover:text-white'
+                    : 'text-neutral-600 hover:text-black'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+        </div>
 
         {/* Center: True viewport center */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-[140px] sm:min-w-[200px] md:min-w-[280px] min-h-[32px] md:min-h-[40px] pointer-events-none px-2 max-md:translate-y-[2px]">
@@ -837,7 +851,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
               <ul className="mt-12 divide-y divide-white/10 border-y border-white/10">
                 {[
-                  { icon: Mail, label: 'Email', value: 'hello@anythingssolution.com', href: 'mailto:hello@anythingssolution.com' },
+                  { icon: Mail, label: 'Email', value: 'anythingssolution@gmail.com', href: 'mailto:anythingssolution@gmail.com' },
                   { icon: Phone, label: 'Phone', value: '+91 123 456 7890', href: 'tel:+911234567890' },
                   { icon: MapPin, label: 'Studio', value: 'India', href: null },
                 ].map((item) => {
@@ -926,29 +940,108 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             </form>
           </div>
         </div>
+      </section>
 
-        <div className="relative px-6 md:px-12">
-          <div className="relative mx-auto max-w-[1400px]">
-            <div className="h-px w-full bg-white/15" />
-          </div>
-          <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-6 py-8 md:flex-row md:items-center">
-            <p className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">
-              © 2026 Any Things Solution
-            </p>
-            <div className="flex items-center gap-6">
-              {['Twitter', 'LinkedIn', 'Instagram', 'GitHub'].map((social) => (
-                <a
-                  key={social}
-                  href="#"
-                  className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35 transition-colors hover:text-white"
+      <footer className="site-footer-grid relative z-10 overflow-x-hidden bg-black text-white">
+        <div className="gts-film-grain pointer-events-none absolute inset-0" aria-hidden="true" />
+
+        <div className="relative mx-auto w-full max-w-[1400px] px-6 pt-16 md:px-12 md:pt-20">
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-6">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex cursor-pointer items-center lg:col-span-2"
+              aria-label="Any Things Solution home"
+            >
+              <img
+                src="/header-logo.png"
+                alt="ATS Anythings Solution"
+                className="h-10 w-auto md:h-11"
+              />
+            </button>
+
+            <nav className="flex flex-nowrap items-center gap-x-4 overflow-x-auto font-mono-custom text-[10px] uppercase tracking-[0.2em] text-white/70 sm:gap-x-5 sm:text-[11px] sm:tracking-[0.24em] lg:col-span-6 lg:justify-center">
+              {[
+                { label: 'Home', id: null },
+                { label: 'Services', id: 'services' },
+                { label: 'Work', id: 'work' },
+                { label: 'About', id: 'about' },
+                { label: 'Portfolio', id: 'portfolio' },
+                { label: 'Contact', id: 'contact' },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => (item.id ? scrollToSection(item.id) : window.scrollTo({ top: 0, behavior: 'smooth' }))}
+                  className="shrink-0 cursor-pointer transition-colors hover:text-white"
                 >
-                  {social}
-                </a>
+                  {item.label}
+                </button>
               ))}
-            </div>
+            </nav>
+
+            <form
+              className="lg:col-span-4 lg:justify-self-end lg:max-w-[22rem]"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <p className="font-syne text-xl font-semibold uppercase leading-[0.95] tracking-tight md:text-2xl">
+                Have a
+                <br />
+                problem?
+                <br />
+                Let&apos;s talk
+              </p>
+              <label className="mt-6 flex items-center gap-2 rounded-full bg-white py-1.5 pl-5 pr-1.5">
+                <span className="sr-only">Email to start a project</span>
+                <input
+                  type="email"
+                  name="project-email"
+                  autoComplete="email"
+                  placeholder="YOUR EMAIL"
+                  className="min-w-0 flex-1 bg-transparent font-mono-custom text-[11px] uppercase tracking-[0.22em] text-black placeholder:text-black/45 outline-none"
+                />
+                <button
+                  type="submit"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-105"
+                  aria-label="Send"
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                </button>
+              </label>
+            </form>
           </div>
         </div>
-      </section>
+
+        <div className="relative w-full px-4 py-10 md:px-6 md:py-14">
+          <p className="site-footer-mark mx-auto w-full max-w-[100%] whitespace-nowrap text-center font-syne text-[clamp(1.25rem,7.1vw,8.6rem)] font-bold uppercase not-italic leading-none tracking-[-0.045em] text-white/90">
+            Any Things Solution
+          </p>
+        </div>
+
+        <div className="relative mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-6 pb-10 md:flex-row md:items-end md:justify-between md:px-12 md:pb-12">
+          <p className="font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40">
+            © 2026 Any Things Solution / All rights reserved
+          </p>
+          <div className="flex flex-col gap-1 font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40 md:text-center">
+            <span>Privacy policy</span>
+            <span className="underline decoration-white/30 underline-offset-4">Terms of use</span>
+          </div>
+          <div className="flex items-center gap-5">
+            {['Twitter', 'LinkedIn', 'Instagram', 'GitHub'].map((social) => (
+              <a
+                key={social}
+                href="#"
+                className="font-mono-custom text-[10px] uppercase tracking-[0.22em] text-brand transition-colors hover:text-white"
+              >
+                {social}
+              </a>
+            ))}
+          </div>
+          <p className="font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40 md:text-right">
+            India · Working worldwide
+          </p>
+        </div>
+      </footer>
 
     </div>
   );
