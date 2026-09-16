@@ -2,47 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowUpRight } from 'lucide-react';
+import { PROJECTS } from '../data/projects';
+import { navigate } from '../lib/navigate';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const PROJECTS = [
-  {
-    title: 'Commerce OS',
-    subtitle: 'E-COMMERCE',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=70',
-  },
-  {
-    title: 'Shift Link',
-    subtitle: 'FINTECH APP',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=900&q=70',
-  },
-  {
-    title: 'AI Ad Suite',
-    subtitle: 'GROWTH',
-    year: '2025',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=70',
-  },
-  {
-    title: 'Nexus Cloud',
-    subtitle: 'PLATFORM',
-    year: '2025',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=70',
-  },
-  {
-    title: 'Pulse Studio',
-    subtitle: 'BRANDING',
-    year: '2023',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=70',
-  },
-  {
-    title: 'Orbit Mobile',
-    subtitle: 'PRODUCT',
-    year: '2024',
-    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=900&q=70',
-  },
-];
 
 export const TiltPortfolioSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -53,7 +16,13 @@ export const TiltPortfolioSection: React.FC = () => {
   const startXRef = useRef(0);
   const startYRef = useRef(0);
   const startProgressRef = useRef(0);
+  const dragDistRef = useRef(0);
   const [active, setActive] = useState(0);
+
+  const openProject = (slug: string) => {
+    if (dragDistRef.current > 8) return;
+    navigate(`/work/${slug}`);
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -63,8 +32,6 @@ export const TiltPortfolioSection: React.FC = () => {
     const updateActive = () => {
       const cards = track.querySelectorAll<HTMLElement>('[data-tilt-card]');
       const progress = stRef.current?.progress ?? 0;
-      // Focus sits left-of-center for most of the reel, then eases right
-      // so the last card still counts as active when we stop earlier.
       const endBlend = Math.max(0, (progress - 0.7) / 0.3);
       const mid = window.innerWidth * (0.42 + 0.32 * endBlend);
       let best = 0;
@@ -89,8 +56,6 @@ export const TiltPortfolioSection: React.FC = () => {
       const last = track.querySelector<HTMLElement>('[data-tilt-card]:last-child');
       const vw = window.innerWidth;
       if (!last) return Math.max(0, track.scrollWidth - vw);
-      // Stop with the last card still in the right half — the old
-      // scrollWidth - 0.22vw pull parked it on the far left and emptied the frame.
       const lastRight = last.offsetLeft + last.offsetWidth;
       return Math.max(0, lastRight - vw * 0.82);
     };
@@ -124,6 +89,7 @@ export const TiltPortfolioSection: React.FC = () => {
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
       draggingRef.current = true;
+      dragDistRef.current = 0;
       startXRef.current = e.clientX;
       startYRef.current = e.clientY;
       startProgressRef.current = stRef.current?.progress ?? 0;
@@ -134,8 +100,8 @@ export const TiltPortfolioSection: React.FC = () => {
       if (!draggingRef.current || !st) return;
       const dx = e.clientX - startXRef.current;
       const dy = e.clientY - startYRef.current;
+      dragDistRef.current = Math.max(dragDistRef.current, Math.hypot(dx, dy));
       if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      // Horizontal drag drives the pinned scroll; vertical drag is ignored so the page can keep moving
       if (Math.abs(dx) <= Math.abs(dy)) return;
       e.preventDefault();
       const next = gsap.utils.clamp(0, 1, startProgressRef.current - dx / (window.innerWidth * 0.9));
@@ -213,13 +179,22 @@ export const TiltPortfolioSection: React.FC = () => {
           >
             {PROJECTS.map((project, i) => (
               <article
-                key={project.title}
+                key={project.slug}
                 data-tilt-card
-                className="relative h-[62vh] w-[min(42vw,340px)] shrink-0 overflow-hidden bg-neutral-900"
+                role="link"
+                tabIndex={0}
+                onClick={() => openProject(project.slug)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openProject(project.slug);
+                  }
+                }}
+                className="relative h-[62vh] w-[min(42vw,340px)] shrink-0 cursor-pointer overflow-hidden bg-neutral-900"
               >
                 <img
-                  src={project.image}
-                  alt=""
+                  src={project.images[0]}
+                  alt={project.title}
                   className="pointer-events-none absolute inset-0 h-full w-full object-cover"
                   draggable={false}
                 />

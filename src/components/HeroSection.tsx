@@ -1,11 +1,12 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowDown, ArrowRight, ArrowUpRight, Mail, Phone, MapPin, Globe, Smartphone, BarChart3, Palette, Presentation, Bot } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Globe, Smartphone, BarChart3, Palette, Presentation, Bot, Facebook, Instagram, Github, Linkedin, Twitter } from 'lucide-react';
 import { GridTransitionSection } from './GridTransitionSection';
 import { FloatingImagesBackground } from './FloatingImagesBackground';
 import { TiltPortfolioSection } from './TiltPortfolioSection';
 import { CaseStudiesSection, OfferSections } from './OfferSections';
+import { ContactModal } from './ContactModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -53,11 +54,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   const servicesRef = useRef<HTMLElement>(null);
   /** true = light nav text (sitting over a dark section) */
   const [navOnDark, setNavOnDark] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    if (isLoading) return;
+    const id = window.location.hash.replace('#', '');
+    if (!id) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [isLoading]);
 
   // Transparent nav — flip link/CTA colors from the section under the bar
   useEffect(() => {
@@ -109,18 +121,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     triggers.push(
       ScrollTrigger.create({
         trigger: '#method',
-        start: 'top top+=80',
-        end: 'bottom top+=80',
-        onEnter: () => setNavOnDark(true),
-        onEnterBack: () => setNavOnDark(true),
-        onLeave: () => setNavOnDark(false),
-        onLeaveBack: () => setNavOnDark(false),
-      })
-    );
-
-    triggers.push(
-      ScrollTrigger.create({
-        trigger: '#contact',
         start: 'top top+=80',
         end: 'bottom top+=80',
         onEnter: () => setNavOnDark(true),
@@ -217,23 +217,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
         const lettersRow = lettersWrapper.querySelector('div');
         if (!lettersRow) return;
 
-        // Measure the letter row — not the full-screen wrapper (that made ATS microscopic on mobile)
-        const wrapperRect = lettersRow.getBoundingClientRect();
+        const rowRect = lettersRow.getBoundingClientRect();
+        const headerRect = header.getBoundingClientRect();
         const targetRect = logoTarget.getBoundingClientRect();
 
-        const wrapperCenterX = wrapperRect.left + wrapperRect.width / 2;
-        const wrapperCenterY = wrapperRect.top + wrapperRect.height / 2;
-
-        const targetCenterX = targetRect.left + targetRect.width / 2;
-        const targetCenterY = targetRect.top + targetRect.height / 2;
+        const rowCX = rowRect.left + rowRect.width / 2;
+        const rowCY = rowRect.top + rowRect.height / 2;
+        const targetCX = targetRect.left + targetRect.width / 2;
+        const targetCY = headerRect.top + headerRect.height / 2;
 
         const isMobile = window.innerWidth < 768;
-        // Match hero quote size on mobile: text-lg ≈ 18px cap height
-        const targetHeight = isMobile ? 18 : 48;
-        const scaleFactor = targetHeight / wrapperRect.height;
+        const targetHeight = isMobile ? 18 : 26;
+        const scaleFactor = targetHeight / rowRect.height;
 
-        const deltaX = targetCenterX - wrapperCenterX;
-        const deltaY = targetCenterY - wrapperCenterY;
+        gsap.set(lettersRow, { transformOrigin: '50% 50%' });
 
         const tl = gsap.timeline({
           scrollTrigger: {
@@ -250,13 +247,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           },
         });
 
-        // Shrink + move the entire letters wrapper into the nav
+        // Pack A T S together and dock them into the header bar
         tl.to(
-          lettersWrapper,
+          lettersRow,
           {
-            x: deltaX,
-            y: deltaY,
+            x: targetCX - rowCX,
+            y: targetCY - rowCY,
             scale: scaleFactor,
+            width: 'auto',
+            gap: isMobile ? '0.12em' : '0.14em',
+            justifyContent: 'center',
+            paddingLeft: 0,
+            paddingRight: 0,
             ease: 'none',
           },
           0
@@ -288,14 +290,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               ease: 'power2.inOut',
             },
             0.12
-          )
-          .to(
-            lettersRow,
-            {
-              gap: isMobile ? '0.45rem' : '0.5rem',
-              ease: 'none',
-            },
-            0
           )
           .to(
             header,
@@ -422,69 +416,71 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* FIXED HEADER — always transparent, colors follow section */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 max-md:pb-3 max-md:pt-7"
+        className="fixed top-0 left-0 right-0 z-50 px-5 py-3 md:px-10 md:py-3.5 max-md:pt-6"
         style={{ backgroundColor: 'transparent', borderBottom: 'none', backdropFilter: 'none' }}
       >
-        {/* Left: Logo + nav links */}
-        <div className="secondary-ui z-10 flex items-center gap-6 md:gap-10">
-          <button
-            type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="shrink-0 cursor-pointer"
-            aria-label="Any Things Solution home"
-          >
-            <img
-              src="/header-logo.png"
-              alt="ATS Anythings Solution"
-              className="h-8 w-auto sm:h-9 md:h-10"
-            />
-          </button>
-          <nav className="hidden md:flex items-center gap-8">
-            {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
-              <button
-                key={item}
-                onClick={() => scrollToSection(item.toLowerCase())}
-                className={`font-mono-custom text-xs uppercase tracking-[0.2em] font-medium transition-colors duration-300 cursor-pointer ${
-                  navOnDark
-                    ? 'text-white/70 hover:text-white'
-                    : 'text-neutral-600 hover:text-black'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Center: True viewport center */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-[140px] sm:min-w-[200px] md:min-w-[280px] min-h-[32px] md:min-h-[40px] pointer-events-none px-2 max-md:translate-y-[2px]">
-          <div
-            className={`header-center-text text-center font-mono-custom uppercase tracking-[0.2em] text-[10px] sm:text-xs font-bold leading-snug transition-colors duration-300 max-md:max-w-[9rem] max-md:text-[9px] max-md:leading-tight ${
-              navOnDark ? 'text-white' : 'text-neutral-900'
-            }`}
-          >
-            Your problems · Solved with tech
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          {/* Left: Logo + nav links */}
+          <div className="secondary-ui z-10 flex min-w-0 items-center gap-4 lg:gap-7">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="shrink-0 cursor-pointer"
+              aria-label="Any Things Solution home"
+            >
+              <img
+                src={navOnDark ? '/nav-logo-light.png' : '/nav-logo.png'}
+                alt="ATS Any Things Solution"
+                className="h-9 w-auto md:h-11"
+              />
+            </button>
+            <nav className="hidden min-w-0 items-center gap-4 lg:flex lg:gap-5 xl:gap-7">
+              {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => scrollToSection(item.toLowerCase())}
+                  className={`shrink-0 font-mono-custom text-[11px] uppercase tracking-[0.16em] font-medium transition-colors duration-300 cursor-pointer xl:text-xs xl:tracking-[0.2em] ${
+                    navOnDark
+                      ? 'text-white/70 hover:text-white'
+                      : 'text-neutral-600 hover:text-black'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
           </div>
-          <div
-            ref={headerLogoTargetRef}
-            className="absolute inset-x-0 top-1 bottom-0 flex items-center justify-center pointer-events-none md:inset-0"
-            aria-hidden="true"
-          />
-        </div>
 
-        {/* Right: Contact CTA — desktop only; hero uses bottom CTA on mobile */}
-        <div className="secondary-ui z-10 ml-auto hidden md:block">
-          <button
-            onClick={() => scrollToSection('contact')}
-            className={`flex items-center gap-2 text-xs font-mono-custom uppercase font-bold tracking-widest px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
-              navOnDark
-                ? 'bg-white text-black hover:bg-neutral-200'
-                : 'bg-black text-white hover:bg-neutral-800 shadow-md'
-            }`}
-          >
-            <span>CONTACT US</span>
-            <ArrowUpRight className={`w-3.5 h-3.5 ${navOnDark ? 'text-black' : 'text-white'}`} />
-          </button>
+          {/* Center: tagline + dock target for the ATS letters */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-10 w-[7.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center xl:w-[16rem]">
+            <div
+              className={`header-center-text hidden text-center font-mono-custom text-[10px] font-bold uppercase leading-tight tracking-[0.18em] transition-colors duration-300 2xl:block ${
+                navOnDark ? 'text-white' : 'text-neutral-900'
+              }`}
+            >
+              Your problems · Solved with tech
+            </div>
+            <div
+              ref={headerLogoTargetRef}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              aria-hidden="true"
+            />
+          </div>
+
+          {/* Right: Contact CTA — desktop only; hero uses bottom CTA on mobile */}
+          <div className="secondary-ui z-10 ml-auto hidden shrink-0 md:block">
+            <button
+              onClick={() => setContactOpen(true)}
+              className={`flex items-center gap-2 text-xs font-mono-custom uppercase font-bold tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
+                navOnDark
+                  ? 'bg-white text-black hover:bg-neutral-200'
+                  : 'bg-black text-white hover:bg-neutral-800 shadow-md'
+              }`}
+            >
+              <span>CONTACT US</span>
+              <ArrowUpRight className={`w-3.5 h-3.5 ${navOnDark ? 'text-black' : 'text-white'}`} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -561,7 +557,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           {/* CTA — bottom center */}
           <div className="absolute bottom-10 left-0 right-0 md:bottom-14 flex justify-center">
             <button
-              onClick={() => scrollToSection('contact')}
+              onClick={() => setContactOpen(true)}
               className="pointer-events-auto inline-flex items-center gap-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-mono-custom uppercase font-bold tracking-widest px-8 py-3.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-[0_8px_24px_rgba(0,0,0,0.25)] cursor-pointer"
             >
               <span>Let&apos;s talk growth</span>
@@ -749,7 +745,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                 Designers, developers, and strategists in one room. One shift at a time.
               </p>
               <button
-                onClick={() => scrollToSection('contact')}
+                onClick={() => setContactOpen(true)}
                 className="mt-10 inline-flex items-center gap-3 self-start bg-[#111111] px-8 py-3 font-mono-custom text-xs uppercase tracking-[0.28em] text-white transition-transform hover:scale-[1.03] active:scale-95 lg:self-end"
               >
                 <span>Get in Touch</span>
@@ -824,124 +820,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
       <CaseStudiesSection />
 
-      {/* ============================================================ */}
-      {/* CONTACT SECTION */}
-      {/* ============================================================ */}
-      <section id="contact" className="relative z-10 bg-black text-white">
-        <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
-          <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-            VII — Contact
-          </p>
-          <div className="relative mb-12 md:mb-16">
-            <div data-rule-line className="h-px w-full bg-white/20" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-10">
-            <div className="lg:col-span-5">
-              <h2 className="font-syne text-[clamp(2.6rem,7vw,5.6rem)] font-semibold leading-[0.92] tracking-tight">
-                Let&apos;s build
-                <br />
-                the next
-                <br />
-                <span className="italic">shift.</span>
-              </h2>
-              <p className="mt-8 max-w-[28rem] text-[15px] leading-relaxed text-white/50">
-                Have a project in mind? Tell us what you want to grow — we&apos;ll map the digital path.
-              </p>
-
-              <ul className="mt-12 divide-y divide-white/10 border-y border-white/10">
-                {[
-                  { icon: Mail, label: 'Email', value: 'anythingssolution@gmail.com', href: 'mailto:anythingssolution@gmail.com' },
-                  { icon: Phone, label: 'Phone', value: '+91 123 456 7890', href: 'tel:+911234567890' },
-                  { icon: MapPin, label: 'Studio', value: 'India', href: null },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  const inner = (
-                    <>
-                      <span className="flex h-10 w-10 items-center justify-center border border-white/15 bg-white/5 text-white transition-colors duration-300 group-hover:border-brand group-hover:bg-brand">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
-                          {item.label}
-                        </span>
-                        <span className="mt-1 block truncate text-sm text-white/80">{item.value}</span>
-                      </span>
-                    </>
-                  );
-                  return (
-                    <li key={item.label}>
-                      {item.href ? (
-                        <a href={item.href} className="group flex items-center gap-4 py-5 transition-colors hover:text-white">
-                          {inner}
-                        </a>
-                      ) : (
-                        <div className="group flex items-center gap-4 py-5">{inner}</div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            <form
-              className="group/form relative overflow-hidden border border-white/10 bg-white/[0.04] p-7 backdrop-blur-md md:p-10 lg:col-span-7"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <span className="absolute left-0 top-0 h-full w-[2px] bg-brand" aria-hidden="true" />
-
-              <div className="mb-10 flex items-end justify-between gap-4">
-                <h3 className="font-syne text-2xl font-semibold tracking-tight md:text-3xl">Send a message</h3>
-                <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/35">
-                  (IV) Inquire
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                <label className="block">
-                  <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Name</span>
-                  <input
-                    type="text"
-                    name="name"
-                    autoComplete="name"
-                    placeholder="Your name"
-                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
-                  />
-                </label>
-                <label className="block">
-                  <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Email</span>
-                  <input
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    placeholder="you@studio.com"
-                    className="mt-3 w-full border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
-                  />
-                </label>
-              </div>
-
-              <label className="mt-8 block">
-                <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/40">Project</span>
-                <textarea
-                  name="message"
-                  rows={4}
-                  placeholder="What do you want to build?"
-                  className="mt-3 w-full resize-none border-0 border-b border-white/20 bg-transparent pb-3 text-[15px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-brand"
-                />
-              </label>
-
-              <button
-                type="submit"
-                className="mt-10 inline-flex items-center gap-3 bg-white px-8 py-3.5 font-mono-custom text-xs uppercase tracking-[0.28em] text-black transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <span>Send Message</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
       <footer className="site-footer-grid relative z-10 overflow-x-hidden bg-black text-white">
         <div className="gts-film-grain pointer-events-none absolute inset-0" aria-hidden="true" />
 
@@ -954,9 +832,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               aria-label="Any Things Solution home"
             >
               <img
-                src="/header-logo.png"
-                alt="ATS Anythings Solution"
-                className="h-10 w-auto md:h-11"
+                src="/nav-logo-light.png"
+                alt="ATS Any Things Solution"
+                className="h-20 w-auto md:h-24"
               />
             </button>
 
@@ -972,7 +850,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
                 <button
                   key={item.label}
                   type="button"
-                  onClick={() => (item.id ? scrollToSection(item.id) : window.scrollTo({ top: 0, behavior: 'smooth' }))}
+                  onClick={() => {
+                    if (!item.id) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    else if (item.id === 'contact') setContactOpen(true);
+                    else scrollToSection(item.id);
+                  }}
                   className="shrink-0 cursor-pointer transition-colors hover:text-white"
                 >
                   {item.label}
@@ -982,7 +864,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
             <form
               className="lg:col-span-4 lg:justify-self-end lg:max-w-[22rem]"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setContactOpen(true);
+              }}
             >
               <p className="font-syne text-xl font-semibold uppercase leading-[0.95] tracking-tight md:text-2xl">
                 Have a
@@ -1022,18 +907,50 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           <p className="font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40">
             © 2026 Any Things Solution / All rights reserved
           </p>
-          <div className="flex flex-col gap-1 font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40 md:text-center">
+          <div className="flex flex-nowrap items-center gap-4 font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40 md:text-center">
             <span>Privacy policy</span>
             <span className="underline decoration-white/30 underline-offset-4">Terms of use</span>
           </div>
           <div className="flex items-center gap-5">
-            {['Twitter', 'LinkedIn', 'Instagram', 'GitHub'].map((social) => (
+            {[
+              {
+                name: 'Facebook',
+                href: 'https://www.facebook.com/people/Ats-Ats/pfbid0sDNwNke59QjeXPTKnUM7RT6mVWtERfyhgTbRmudC1q3iiuyUrKyKKmpTKCHb7mbFl/',
+                Icon: Facebook,
+              },
+              {
+                name: 'Instagram',
+                href: 'https://www.instagram.com/anythingssolution',
+                Icon: Instagram,
+              },
+              {
+                name: 'Twitter',
+                href: 'https://x.com/AnythingsSol',
+                Icon: Twitter,
+              },
+              {
+                name: 'LinkedIn',
+                href: 'https://www.linkedin.com/in/anythingssolution',
+                Icon: Linkedin,
+              },
+              {
+                name: 'GitHub',
+                href: 'https://github.com/anythingssolution',
+                Icon: Github,
+              },
+            ].map(({ name, href, Icon }) => (
               <a
-                key={social}
-                href="#"
-                className="font-mono-custom text-[10px] uppercase tracking-[0.22em] text-brand transition-colors hover:text-white"
+                key={name}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={name}
+                className="group relative text-brand transition-colors hover:text-white"
               >
-                {social}
+                <Icon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
+                <span className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-white px-2 py-1 font-mono-custom text-[9px] uppercase tracking-[0.18em] text-black opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                  {name}
+                </span>
               </a>
             ))}
           </div>
@@ -1042,6 +959,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
           </p>
         </div>
       </footer>
+
+      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
 
     </div>
   );
