@@ -163,39 +163,43 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     return () => triggers.forEach((t) => t.kill());
   }, [isLoading]);
 
-  // Intro animation — letters slide in from left
+  // Intro — letters slide in once and stay. Do not revert them when the
+  // preloader finishes or they snap/shrink as GSAP restores opacity-0.
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      if (isLoading) {
-        gsap.set('.secondary-ui', { opacity: 0, y: 20 });
+      gsap.fromTo(
+        '.hero-letter',
+        { x: '-100vw', opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 1.4,
+          ease: 'power4.out',
+          stagger: 0.12,
+        }
+      );
+      gsap.set('.secondary-ui', { opacity: 0, y: 20 });
+    }, containerRef);
 
-        gsap.fromTo(
-          '.hero-letter',
-          { x: '-100vw', opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 1.4,
-            ease: 'power4.out',
-            stagger: 0.12,
-          }
-        );
-      } else {
-        gsap.set('.hero-letter', { x: 0, opacity: 1 });
+    return () => ctx.revert();
+  }, []);
 
-        gsap.fromTo(
-          '.secondary-ui',
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1.3,
-            ease: 'power2.out',
-            stagger: 0.08,
-            delay: 0.1,
-          }
-        );
-      }
+  useLayoutEffect(() => {
+    if (isLoading) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.secondary-ui',
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.3,
+          ease: 'power2.out',
+          stagger: 0.08,
+          delay: 0.1,
+        }
+      );
     }, containerRef);
 
     return () => ctx.revert();
@@ -205,7 +209,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   useLayoutEffect(() => {
     if (isLoading) return;
 
-    const timer = setTimeout(() => {
+    let cancelled = false;
+    let ctx: gsap.Context | null = null;
+
+    const setupDock = () => {
+      if (cancelled) return;
+      window.scrollTo(0, 0);
+
       const hero = heroRef.current;
       const header = headerRef.current;
       const lettersWrapper = lettersWrapperRef.current;
@@ -213,24 +223,59 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
       if (!hero || !header || !lettersWrapper || !logoTarget) return;
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         const lettersRow = lettersWrapper.querySelector('div');
         if (!lettersRow) return;
 
-        const rowRect = lettersRow.getBoundingClientRect();
-        const headerRect = header.getBoundingClientRect();
-        const targetRect = logoTarget.getBoundingClientRect();
+        const letters = Array.from(lettersRow.querySelectorAll<HTMLElement>('.hero-letter'));
 
-        const rowCX = rowRect.left + rowRect.width / 2;
-        const rowCY = rowRect.top + rowRect.height / 2;
-        const targetCX = targetRect.left + targetRect.width / 2;
-        const targetCY = headerRect.top + headerRect.height / 2;
+        // Keep the loader layout on the CSS classes. justify-content / width / gap
+        // are not numeric, so the scroll tween snaps them as soon as it is created
+        // and Any + Solution slide toward Things while the page is still at the top.
+        lettersRow.style.removeProperty('width');
+        lettersRow.style.removeProperty('gap');
+        lettersRow.style.removeProperty('justify-content');
+        lettersRow.style.removeProperty('padding-left');
+        lettersRow.style.removeProperty('padding-right');
 
-        const isMobile = window.innerWidth < 768;
-        const targetHeight = isMobile ? 18 : 26;
-        const scaleFactor = targetHeight / rowRect.height;
+        const dock = { dx: letters.map(() => 0), x: 0, y: 0, scale: 1 };
+        let measuring = false;
 
-        gsap.set(lettersRow, { transformOrigin: '50% 50%' });
+        const measure = () => {
+          if (measuring) return;
+          measuring = true;
+          gsap.set(letters, { x: 0 });
+          gsap.set(lettersRow, { x: 0, y: 0, scale: 1, transformOrigin: '50% 50%' });
+
+          const rowRect = lettersRow.getBoundingClientRect();
+          const headerRect = header.getBoundingClientRect();
+          const targetRect = logoTarget.getBoundingClientRect();
+          const isMobile = window.innerWidth < 768;
+          const targetHeight = isMobile ? 18 : 26;
+          const scale = rowRect.height > 0 ? targetHeight / rowRect.height : 1;
+          const layoutGap = (isMobile ? 2 : 3) / Math.max(scale, 0.01);
+
+          const capRects = letters.map((letter) => {
+            const cap = letter.querySelector('.hero-capital');
+            return (cap ?? letter).getBoundingClientRect();
+          });
+          const total =
+            capRects.reduce((sum, rect) => sum + rect.width, 0) +
+            layoutGap * Math.max(0, capRects.length - 1);
+          let cursor = rowRect.left + (rowRect.width - total) / 2;
+          dock.dx = capRects.map((rect) => {
+            const delta = cursor - rect.left;
+            cursor += rect.width + layoutGap;
+            return delta;
+          });
+
+          dock.x = targetRect.left + targetRect.width / 2 - (rowRect.left + rowRect.width / 2);
+          dock.y = headerRect.top + headerRect.height / 2 - (rowRect.top + rowRect.height / 2);
+          dock.scale = scale;
+          measuring = false;
+        };
+
+        measure();
 
         const tl = gsap.timeline({
           scrollTrigger: {
@@ -244,22 +289,35 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             pinSpacing: false,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            onRefreshInit: () => measure(),
           },
         });
 
-        // Pack A T S together and dock them into the header bar
-        tl.to(
+        // Pack the capitals on scroll only. x stays 0 at the top, so the words
+        // remain where the loader placed them until the user actually scrolls.
+        letters.forEach((letter, index) => {
+          tl.fromTo(
+            letter,
+            { x: 0 },
+            {
+              x: () => dock.dx[index] ?? 0,
+              ease: 'none',
+              immediateRender: false,
+            },
+            0
+          );
+        });
+
+        tl.fromTo(
           lettersRow,
+          { x: 0, y: 0, scale: 1 },
           {
-            x: targetCX - rowCX,
-            y: targetCY - rowCY,
-            scale: scaleFactor,
-            width: 'auto',
-            gap: isMobile ? '0.12em' : '0.14em',
-            justifyContent: 'center',
-            paddingLeft: 0,
-            paddingRight: 0,
+            x: () => dock.x,
+            y: () => dock.y,
+            scale: () => dock.scale,
+            transformOrigin: '50% 50%',
             ease: 'none',
+            immediateRender: false,
           },
           0
         )
@@ -284,8 +342,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             '.hero-lowercase',
             {
               scaleX: 0,
-              width: 0,
-              marginLeft: 0,
               duration: 0.55,
               ease: 'power2.inOut',
             },
@@ -323,11 +379,24 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             0
           );
       }, containerRef);
+    };
 
-      return () => ctx.revert();
-    }, 600);
+    const start = () => {
+      const run = () => requestAnimationFrame(setupDock);
+      if (document.fonts?.ready) {
+        void document.fonts.ready.then(run);
+      } else {
+        run();
+      }
+    };
 
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(start, 650);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      ctx?.revert();
+    };
   }, [isLoading]);
 
   useLayoutEffect(() => {

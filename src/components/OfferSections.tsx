@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowUpRight, Building2, Rocket, Store } from 'lucide-react';
+import { navigate } from '../lib/navigate';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -277,15 +278,26 @@ export const OfferSections: React.FC = () => {
   );
 };
 
-const CASES = [
+const CASES: {
+  n: string;
+  title: string;
+  tag: string;
+  href?: string;
+  problem: string;
+  did: string;
+  result: string;
+  image: string;
+}[] = [
   {
     n: '01',
-    title: 'Commerce OS',
-    tag: 'Product + growth',
-    problem: 'A retailer needed a store that could take orders and look like a brand — not a template.',
-    did: 'We mapped the business, built the site, then launched ads made with our tech. No shoot. No extra crew.',
-    result: 'Live in weeks, not quarters. One team from first call to paid traffic.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=70',
+    title: 'Krishi Udhar',
+    tag: 'Product by ATS',
+    href: '/work/krishi-udhar',
+    problem:
+      'Fertiliser and seed shops in India sell on udhari. Paper copies split today’s bill from last season’s due, and generic GST tools assume cash-and-carry.',
+    did: 'Anythingssolution (ATS) designed and built Krishi Udhar: a Hindi shop app for bills, farmer khata, stock, dealer purchase and returns — live at krishiudhar.com.',
+    result: 'A one-counter retailer can close the day knowing what sold, what cash came in, and who still owes. Free during beta; not a GST filing product.',
+    image: '/portfolio/kisankhata-01.png',
   },
   {
     n: '02',
@@ -360,13 +372,22 @@ export const CaseStudiesSection: React.FC = () => {
           {CASES.map((item, i) => (
             <article
               key={item.title}
-              className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14"
+              className={`grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14 ${
+                item.href ? 'cursor-pointer' : ''
+              }`}
+              onClick={() => {
+                if (item.href) navigate(item.href);
+              }}
             >
               <div className={`overflow-hidden lg:col-span-7 ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
                 <div data-case-media className="origin-center will-change-transform">
                   <img
                     src={item.image}
-                    alt=""
+                    alt={
+                      item.title === 'Krishi Udhar'
+                        ? 'Krishi Udhar by Anythingssolution (ATS) — agri shop billing software'
+                        : item.title
+                    }
                     className="aspect-[16/10] h-auto w-full object-cover"
                   />
                 </div>
@@ -399,7 +420,7 @@ export const CaseStudiesSection: React.FC = () => {
                   </div>
                 </dl>
                 <p className="mt-8 inline-flex items-center gap-2 font-mono-custom text-[10px] uppercase tracking-[0.28em] text-[#111111]/40">
-                  Case {item.n}
+                  {item.href ? 'Read the case' : `Case ${item.n}`}
                   <ArrowUpRight className="h-3 w-3" />
                 </p>
               </div>

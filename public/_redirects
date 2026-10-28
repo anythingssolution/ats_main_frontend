@@ -1,3 +1,7 @@
+# QR tracking URL — change destination here without reprinting codes.
+/qr           /             302
+/work/kisankhata  /work/krishi-udhar  301
+
 # Serve crawl files as-is; SPA fallback last.
 /sitemap.xml  /sitemap.xml  200
 /robots.txt   /robots.txt   200

@@ -177,7 +177,9 @@ export const TiltPortfolioSection: React.FC = () => {
             ref={trackRef}
             className="flex items-center gap-8 pl-[12vw] pr-[5vw] will-change-transform"
           >
-            {PROJECTS.map((project, i) => (
+            {PROJECTS.map((project, i) => {
+              const poster = Boolean(project.cover);
+              return (
               <article
                 key={project.slug}
                 data-tilt-card
@@ -190,43 +192,56 @@ export const TiltPortfolioSection: React.FC = () => {
                     openProject(project.slug);
                   }
                 }}
-                className="relative h-[62vh] w-[min(42vw,340px)] shrink-0 cursor-pointer overflow-hidden bg-neutral-900"
+                className={`relative h-[62vh] w-[min(42vw,340px)] shrink-0 cursor-pointer overflow-hidden ${
+                  poster ? 'bg-white' : 'bg-neutral-900'
+                }`}
               >
                 <img
-                  src={project.images[0]}
+                  src={project.cover ?? project.images[0]}
                   alt={project.title}
                   className="pointer-events-none absolute inset-0 h-full w-full object-cover"
                   draggable={false}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/20" />
+                {!poster && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/20" />
+                )}
 
-                <p className="absolute left-5 top-5 font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/80">
-                  ATS
-                </p>
-                <p className="absolute right-5 top-5 font-mono-custom text-[10px] uppercase tracking-[0.2em] text-white/70">
-                  {project.year}
-                </p>
+                {!poster && (
+                  <>
+                    <p className="absolute left-5 top-5 font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/80">
+                      ATS
+                    </p>
+                    <p className="absolute right-5 top-5 font-mono-custom text-[10px] uppercase tracking-[0.2em] text-white/70">
+                      {project.year}
+                    </p>
 
-                <div className="absolute inset-x-5 top-1/2 -translate-y-1/2 text-center">
-                  <p className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/70">
-                    {project.subtitle}
-                  </p>
-                  <h3 className="mt-2 font-syne text-[clamp(1.4rem,3.2vw,2.6rem)] font-bold uppercase leading-[0.95] tracking-tight text-white">
-                    {project.title}
-                  </h3>
-                </div>
+                    <div className="absolute inset-x-5 top-1/2 -translate-y-1/2 text-center">
+                      <p className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-white/70">
+                        {project.subtitle}
+                      </p>
+                      <h3 className="mt-2 font-syne text-[clamp(1.4rem,3.2vw,2.6rem)] font-bold uppercase leading-[0.95] tracking-tight text-white">
+                        {project.title}
+                      </h3>
+                    </div>
 
-                <p className="absolute bottom-5 left-5 font-mono-custom text-[10px] uppercase tracking-[0.2em] text-white/75">
-                  ({String(i + 1).padStart(2, '0')}) {project.title}
-                </p>
+                    <p className="absolute bottom-5 left-5 font-mono-custom text-[10px] uppercase tracking-[0.2em] text-white/75">
+                      ({String(i + 1).padStart(2, '0')}) {project.title}
+                    </p>
+                  </>
+                )}
 
                 {active === i && (
-                  <div className="absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full bg-white text-black">
+                  <div
+                    className={`absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full ${
+                      poster ? 'bg-[#163024] text-white' : 'bg-white text-black'
+                    }`}
+                  >
                     <ArrowUpRight className="h-4 w-4" />
                   </div>
                 )}
               </article>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

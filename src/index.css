@@ -9,6 +9,8 @@
 @layer base {
   html {
     overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 
   body {

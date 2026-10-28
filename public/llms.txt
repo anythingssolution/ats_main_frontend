@@ -4,6 +4,19 @@
 
 Any Things Solution is not a marketing shop. Bring the problem. We pick the technology and build the path: product, platform, app, or system. Designers, developers, and strategists work as one team.
 
+## Products built by ATS
+
+### Krishi Udhar (कृषि उधार)
+
+Krishi Udhar is billing and farmer-credit (udhari) software for small fertiliser, seed and agri-input shops in India. Anythingssolution (ATS) designed, built and operates it.
+
+- Live product: https://krishiudhar.com
+- ATS case study: https://anythingssolution.com/work/krishi-udhar
+- YouTube: https://www.youtube.com/@krishiudhar
+- Product help: krishiudhar@gmail.com
+
+Shopkeepers print Hindi bills, keep each farmer’s khata, track stock (batch / expiry), dealer purchases and goods returns, and send a manual WhatsApp due reminder. Currently free during beta; future pricing is not announced. It is shop accounting — not GST filing, not automatic messaging, not a loan product.
+
 ## Services
 
 - Custom software and digital products

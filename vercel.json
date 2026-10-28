@@ -1,4 +1,16 @@
 {
+  "redirects": [
+    {
+      "source": "/qr",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/work/kisankhata",
+      "destination": "/work/krishi-udhar",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/sitemap.xml",
