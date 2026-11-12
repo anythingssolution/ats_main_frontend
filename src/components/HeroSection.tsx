@@ -10,34 +10,7 @@ import { ContactModal } from './ContactModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SPLIT_BANDS = 4;
 
-const SplitLine: React.FC<{ text: string; className?: string; shift?: number }> = ({
-  text,
-  className = '',
-  shift = 1,
-}) => (
-  <div className={`relative h-[0.88em] w-full overflow-hidden ${className}`} data-split-line={shift}>
-    {Array.from({ length: SPLIT_BANDS }, (_, i) => {
-      const topClip = (i / SPLIT_BANDS) * 100;
-      const bottomClip = 100 - ((i + 1) / SPLIT_BANDS) * 100;
-      const dir = shift * (i % 2 === 0 ? 1 : -1);
-      return (
-        <span
-          key={i}
-          data-split-band
-          data-text={text}
-          aria-hidden="true"
-          className="absolute inset-0 block leading-none will-change-transform"
-          style={{
-            clipPath: `inset(${topClip}% 0 ${bottomClip}% 0)`,
-            transform: `translateX(${dir * 16}vw)`,
-          }}
-        />
-      );
-    })}
-  </div>
-);
 
 interface HeroSectionProps {
   onReplayLoader: () => void;
@@ -58,17 +31,44 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+      try {
+        window.history.pushState(null, '', `#${id}`);
+      } catch {}
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   useEffect(() => {
     if (isLoading) return;
-    const id = window.location.hash.replace('#', '');
-    if (!id) return;
-    const timer = window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
-    }, 120);
-    return () => window.clearTimeout(timer);
+
+    const performScroll = (smooth = false) => {
+      const id = window.location.hash.replace('#', '');
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) {
+        ScrollTrigger.refresh();
+        el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+      }
+    };
+
+    performScroll(false);
+    const t1 = window.setTimeout(() => performScroll(false), 80);
+    const t2 = window.setTimeout(() => performScroll(false), 240);
+    const t3 = window.setTimeout(() => performScroll(false), 600);
+
+    const onPop = () => performScroll(true);
+    const onHashChange = () => performScroll(true);
+    window.addEventListener('popstate', onPop);
+    window.addEventListener('hashchange', onHashChange);
+
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('hashchange', onHashChange);
+    };
   }, [isLoading]);
 
   // Transparent nav — flip link/CTA colors from the section under the bar
@@ -214,7 +214,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
     const setupDock = () => {
       if (cancelled) return;
-      window.scrollTo(0, 0);
+      const targetHash = window.location.hash.replace('#', '');
+      if (!targetHash) {
+        window.scrollTo(0, 0);
+      }
 
       const hero = heroRef.current;
       const header = headerRef.current;
@@ -379,6 +382,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             0
           );
       }, containerRef);
+
+      if (targetHash) {
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          const target = document.getElementById(targetHash);
+          if (target) {
+            target.scrollIntoView({ behavior: 'auto', block: 'start' });
+          }
+        });
+      }
     };
 
     const start = () => {
@@ -390,7 +403,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       }
     };
 
-    const timer = window.setTimeout(start, 650);
+    const hasHash = Boolean(window.location.hash);
+    const timer = window.setTimeout(start, hasHash ? 40 : 650);
 
     return () => {
       cancelled = true;
@@ -403,27 +417,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     if (isLoading) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>('[data-split-scrub]').forEach((el) => {
-        const lines = el.querySelectorAll<HTMLElement>('[data-split-line]');
-        const tl = gsap.timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 80%',
-            end: 'top 22%',
-            scrub: 0.7,
-          },
-        });
-
-        lines.forEach((line) => {
-          const lineDir = Number(line.dataset.splitLine) || 1;
-          line.querySelectorAll<HTMLElement>('[data-split-band]').forEach((band, i) => {
-            const dir = lineDir * (i % 2 === 0 ? 1 : -1);
-            tl.fromTo(band, { x: `${16 * dir}vw` }, { x: 0, duration: 1 }, 0);
-          });
-        });
-      });
-
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
         gsap.from(el, {
           y: 36,
@@ -641,42 +634,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* ============================================================ */}
       {/* SERVICES SECTION */}
       {/* ============================================================ */}
-      <section ref={servicesRef} id="services" className="relative z-10 bg-black text-white">
-        <div data-split-scrub className="flex flex-col justify-center px-6 py-24 md:px-12 md:py-32">
-          <div className="relative mx-auto w-full max-w-[1400px]">
-            <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
+      <section ref={servicesRef} id="services" className="relative z-10 bg-black text-white px-6 py-16 md:px-12 md:py-24">
+        <div className="relative mx-auto w-full max-w-[1400px]">
+          <div className="mb-10 md:mb-14">
+            <p data-reveal className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
               II — Services
             </p>
-            <div className="relative mb-10">
+            <div className="relative mb-8 md:mb-10">
               <div data-rule-line className="h-px w-full bg-white/20" />
             </div>
-            <h2 className="relative m-0 text-white">
-              <span className="pointer-events-none absolute inset-0 z-0 font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold leading-[0.88] tracking-tight text-transparent">
-                Digital solutions that grow
-              </span>
-              <span className="relative z-[1] block" aria-hidden="true">
-                <SplitLine
-                  text="DIGITAL"
-                  shift={1}
-                  className="font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-semibold tracking-tight"
-                />
-                <SplitLine
-                  text="SOLUTIONS"
-                  shift={-1}
-                  className="-mt-[0.02em] font-syne text-[clamp(2.6rem,8vw,6.4rem)] font-bold tracking-tight"
-                />
-                <SplitLine
-                  text="THAT GROW"
-                  shift={1}
-                  className="-mt-[0.02em] font-syne text-[clamp(2.4rem,7.4vw,5.8rem)] font-semibold italic tracking-tight"
-                />
-              </span>
-            </h2>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end lg:gap-12">
+              <h2
+                data-reveal
+                className="font-syne text-[clamp(2.4rem,6vw,4.8rem)] font-semibold leading-[0.95] tracking-tight text-white lg:col-span-8"
+              >
+                Digital solutions
+                <br />
+                <span className="italic font-normal text-white/90">that grow.</span>
+              </h2>
+              <p
+                data-reveal
+                className="max-w-[28rem] font-sans text-sm md:text-[15px] leading-relaxed text-white/55 lg:col-span-4 lg:mb-2 lg:text-right"
+              >
+                Custom software, mobile apps, and intelligent systems built to solve real business problems — engineered to scale from day one.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="px-6 pb-24 md:px-12 md:pb-32">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3">
             {[
               {
                 icon: Globe,
@@ -754,41 +739,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       {/* ABOUT SECTION */}
       {/* ============================================================ */}
       <section ref={aboutRef} id="about" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
-        <div data-split-scrub className="relative px-5 pt-24 pb-6 md:px-10 md:pt-28 md:pb-8">
-          <div className="relative">
-            <p className="absolute right-0 top-1 z-10 hidden max-w-[14rem] text-right font-mono-custom text-[9px] uppercase leading-relaxed tracking-[0.22em] text-[#111111]/55 md:block">
-              Any Things Solution creates digital paths for businesses &amp; people desiring a shift. Working worldwide.
-            </p>
+        <div className="relative px-6 pt-16 pb-6 md:px-12 md:pt-20 md:pb-8">
+          <div className="mx-auto w-full max-w-[1400px]">
+            <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
+              <h2
+                data-reveal
+                className="font-syne text-[clamp(2.4rem,6vw,4.8rem)] font-semibold leading-[0.95] tracking-tight text-[#111111]"
+              >
+                About the shift
+                <br />
+                <span className="italic font-normal text-[#111111]/80">we grow.</span>
+              </h2>
+              <p
+                data-reveal
+                className="max-w-[16rem] font-mono-custom text-[9px] uppercase leading-relaxed tracking-[0.22em] text-[#111111]/60 md:text-right"
+              >
+                Any Things Solution creates digital paths for businesses &amp; people desiring a shift. Working worldwide.
+              </p>
+            </div>
 
-            <h2 className="relative m-0 text-[#111111]">
-              <span className="pointer-events-none absolute inset-0 z-0 font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold leading-[0.88] tracking-tight text-transparent">
-                About the shift we grow
-              </span>
-              <span className="relative z-[1] block" aria-hidden="true">
-                <SplitLine
-                  text="ABOUT"
-                  shift={1}
-                  className="font-syne text-[clamp(3.8rem,16vw,12rem)] font-semibold tracking-tight"
-                />
-                <SplitLine
-                  text="THE SHIFT"
-                  shift={-1}
-                  className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-bold tracking-tight"
-                />
-                <SplitLine
-                  text="WE GROW"
-                  shift={1}
-                  className="-mt-[0.04em] font-syne text-[clamp(3.2rem,15vw,11rem)] font-semibold italic tracking-tight"
-                />
-              </span>
-            </h2>
-          </div>
-
-          <div className="relative mt-8 md:mt-10">
-            <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-              I — Concept
-            </p>
             <div className="relative">
+              <p data-reveal className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
+                I — Concept
+              </p>
               <div data-rule-line className="h-px w-full bg-[#111111]/20" />
             </div>
           </div>

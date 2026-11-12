@@ -9,22 +9,22 @@ import { motion, useMotionValue, useSpring, useTransform, type MotionValue } fro
  */
 
 const PHOTOS = [
-  'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=500&q=70',
+  '/hero-photos/hero-01.jpg',
+  '/hero-photos/hero-02.jpg',
+  '/hero-photos/hero-03.jpg',
+  '/hero-photos/hero-04.jpg',
+  '/hero-photos/hero-05.jpg',
+  '/hero-photos/hero-06.jpg',
+  '/hero-photos/hero-07.jpg',
+  '/hero-photos/hero-08.jpg',
+  '/hero-photos/hero-09.jpg',
+  '/hero-photos/hero-10.jpg',
+  '/hero-photos/hero-11.jpg',
+  '/hero-photos/hero-12.jpg',
+  '/hero-photos/hero-13.jpg',
+  '/hero-photos/hero-14.jpg',
+  '/hero-photos/hero-15.jpg',
+  '/hero-photos/hero-16.jpg',
 ];
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));

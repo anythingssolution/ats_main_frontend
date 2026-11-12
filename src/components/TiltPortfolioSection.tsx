@@ -21,6 +21,9 @@ export const TiltPortfolioSection: React.FC = () => {
 
   const openProject = (slug: string) => {
     if (dragDistRef.current > 8) return;
+    try {
+      window.history.replaceState(null, '', '/#portfolio');
+    } catch {}
     navigate(`/work/${slug}`);
   };
 

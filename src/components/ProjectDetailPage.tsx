@@ -139,7 +139,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ slug }) =>
             <button
               type="button"
               onClick={() => navigate('/#portfolio')}
-              className="hidden items-center gap-2 font-mono-custom text-[11px] uppercase tracking-[0.16em] text-white/70 hover:text-white md:flex"
+              className="flex items-center gap-2 font-mono-custom text-[11px] uppercase tracking-[0.16em] text-white/70 hover:text-white"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Portfolio
