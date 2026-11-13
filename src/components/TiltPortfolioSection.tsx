@@ -27,40 +27,66 @@ export const TiltPortfolioSection: React.FC = () => {
     navigate(`/work/${slug}`);
   };
 
+  const scrollToCard = (targetIndex: number) => {
+    const st = stRef.current;
+    if (!st) return;
+    const count = PROJECTS.length;
+    if (count <= 1) return;
+    const targetProgress = targetIndex / (count - 1);
+    const y = st.start + (st.end - st.start) * targetProgress;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
     if (!section || !track) return;
 
-    const updateActive = () => {
+    const getMetrics = () => {
       const cards = track.querySelectorAll<HTMLElement>('[data-tilt-card]');
+      const count = cards.length;
+      const vh = window.innerHeight;
+
+      if (count <= 1) {
+        return {
+          travel: 0,
+          pinDistance: vh * 0.6,
+        };
+      }
+
+      const first = cards[0];
+      const second = cards[1];
+      const step =
+        second && first
+          ? Math.abs(second.offsetLeft - first.offsetLeft)
+          : (first?.offsetWidth ?? 340) + 32;
+
+      // Exact horizontal travel to bring each card from Card 0 to Card N-1 into the focal spot:
+      const travel = (count - 1) * step;
+
+      // Generous comfortable pin distance: ~0.85 screen heights of scroll per card transition
+      const pinDistance = Math.max(vh * 0.8, (count - 1) * vh * 0.85);
+
+      return {
+        travel,
+        pinDistance,
+        step,
+        count,
+      };
+    };
+
+    const updateActive = () => {
+      const count = PROJECTS.length;
+      if (count <= 1) {
+        setActive(0);
+        return;
+      }
       const progress = stRef.current?.progress ?? 0;
-      const endBlend = Math.max(0, (progress - 0.7) / 0.3);
-      const mid = window.innerWidth * (0.42 + 0.32 * endBlend);
-      let best = 0;
-      let bestDist = Infinity;
-      cards.forEach((card, i) => {
-        const r = card.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const d = Math.abs(cx - mid);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
-      });
-      if (progress >= 0.97) best = cards.length - 1;
+      const best = Math.min(count - 1, Math.max(0, Math.round(progress * (count - 1))));
       if (best !== lastActiveRef.current) {
         lastActiveRef.current = best;
         setActive(best);
       }
-    };
-
-    const getTravel = () => {
-      const last = track.querySelector<HTMLElement>('[data-tilt-card]:last-child');
-      const vw = window.innerWidth;
-      if (!last) return Math.max(0, track.scrollWidth - vw);
-      const lastRight = last.offsetLeft + last.offsetWidth;
-      return Math.max(0, lastRight - vw * 0.82);
     };
 
     const ctx = gsap.context(() => {
@@ -68,13 +94,14 @@ export const TiltPortfolioSection: React.FC = () => {
         track,
         { x: 0 },
         {
-          x: () => -getTravel(),
+          x: () => -getMetrics().travel,
           ease: 'none',
           force3D: true,
           scrollTrigger: {
+            id: 'portfolio-trigger',
             trigger: section,
             start: 'top top',
-            end: () => `+=${getTravel()}`,
+            end: () => `+=${getMetrics().pinDistance}`,
             pin: true,
             pinSpacing: true,
             scrub: 1.1,
@@ -107,7 +134,9 @@ export const TiltPortfolioSection: React.FC = () => {
       if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
       if (Math.abs(dx) <= Math.abs(dy)) return;
       e.preventDefault();
-      const next = gsap.utils.clamp(0, 1, startProgressRef.current - dx / (window.innerWidth * 0.9));
+      const count = PROJECTS.length;
+      const dragFactor = (count > 1 ? count - 1 : 1) * (window.innerWidth * 0.45);
+      const next = gsap.utils.clamp(0, 1, startProgressRef.current - dx / dragFactor);
       const y = st.start + (st.end - st.start) * next;
       window.scrollTo(0, y);
     };
@@ -178,7 +207,11 @@ export const TiltPortfolioSection: React.FC = () => {
         >
           <div
             ref={trackRef}
-            className="flex items-center gap-8 pl-[12vw] pr-[5vw] will-change-transform"
+            className="flex items-center gap-8 will-change-transform"
+            style={{
+              paddingLeft: 'max(8vw, calc(44vw - min(21vw, 170px)))',
+              paddingRight: '16vw',
+            }}
           >
             {PROJECTS.map((project, i) => {
               const poster = Boolean(project.cover);
@@ -235,11 +268,19 @@ export const TiltPortfolioSection: React.FC = () => {
 
                 {active === i && (
                   <div
-                    className={`absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full ${
-                      poster ? 'bg-[#163024] text-white' : 'bg-white text-black'
+                    className={`absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full shadow-lg ${
+                      project.slug === 'homeopathy-clinic'
+                        ? 'bg-[#1b4332] text-white'
+                        : project.slug === 'krishi-udhar'
+                        ? 'bg-[#163024] text-amber-200'
+                        : project.slug === 'mathur-cineplex'
+                        ? 'bg-[#4a0d17] text-amber-200'
+                        : poster
+                        ? 'bg-[#163024] text-white'
+                        : 'bg-white text-black'
                     }`}
                   >
-                    <ArrowUpRight className="h-4 w-4" />
+                    <ArrowUpRight className="h-5 w-5" />
                   </div>
                 )}
               </article>
@@ -249,12 +290,18 @@ export const TiltPortfolioSection: React.FC = () => {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-8 left-6 flex items-center gap-1.5 md:left-12">
-        {PROJECTS.map((_, i) => (
-          <span
-            key={i}
-            className={`h-3.5 border border-white/70 ${
-              i === active ? 'w-5 bg-white/20' : 'w-2.5'
+      <div className="absolute bottom-8 left-6 z-20 flex items-center gap-2 md:left-12">
+        {PROJECTS.map((project, i) => (
+          <button
+            key={project.slug}
+            type="button"
+            onClick={() => scrollToCard(i)}
+            title={`Go to ${project.title}`}
+            aria-label={`Go to ${project.title}`}
+            className={`h-3.5 border border-white/70 transition-all duration-300 cursor-pointer ${
+              i === active
+                ? 'w-6 bg-white/35 border-white'
+                : 'w-2.5 bg-transparent hover:bg-white/15'
             }`}
           />
         ))}

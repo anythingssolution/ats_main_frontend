@@ -10,7 +10,7 @@ function currentPath() {
 
 export default function App() {
   const [path, setPath] = useState(currentPath);
-  const [isLoading, setIsLoading] = useState(() => currentPath() === '/');
+  const [isLoading, setIsLoading] = useState(() => currentPath() === '/' && !window.location.hash);
 
   useEffect(() => {
     const onPop = () => setPath(currentPath());

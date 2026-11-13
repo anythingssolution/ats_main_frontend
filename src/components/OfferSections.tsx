@@ -290,6 +290,17 @@ const CASES: {
 }[] = [
   {
     n: '01',
+    title: 'Dr. Trivedi’s Homeopathy',
+    tag: 'Clinic ERP by ATS',
+    href: '/work/homeopathy-clinic',
+    problem:
+      'Multi-branch clinic with crowded waiting rooms, manual token calling, complex homeopathic prescription drafting, and disconnected dispensary counters.',
+    did: 'Anythingssolution (ATS) engineered a full-stack clinic operating system: multi-role portals (Doctor, Reception, Medical, Patient OTP), WebSocket live TV queue display, Hindi numeric Rx engine, and billing.',
+    result: 'Zero waiting-room confusion with instant token chimes, 60% faster consultation note entry, and real-time reconciliation across reception and pharmacy.',
+    image: '/portfolio/homeopathy-01-live-queue.png',
+  },
+  {
+    n: '02',
     title: 'Krishi Udhar',
     tag: 'Product by ATS',
     href: '/work/krishi-udhar',
@@ -300,22 +311,15 @@ const CASES: {
     image: '/portfolio/kisankhata-01.png',
   },
   {
-    n: '02',
-    title: 'Shift Link',
-    tag: 'App + brand',
-    problem: 'A fintech idea with no product face — and no budget for a traditional production house.',
-    did: 'Strategy first, then app UI and a brand system. Ads and motion from the same stack that designed the product.',
-    result: 'A launch kit that felt complete: product, identity, and campaigns that could run the same week.',
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=70',
-  },
-  {
     n: '03',
-    title: 'Local growth',
-    tag: 'Ads + growth',
-    problem: 'A local business was spending on ads that did not look like them, shot with gear they did not own.',
-    did: 'Surface analysis, then creatives built in-house with our tech. We ran growth from those same assets.',
-    result: 'Head-to-toe coverage without a camera day — time and money stayed in the business.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=70',
+    title: 'Mathur Cineplex',
+    tag: 'Cinema ERP by ATS',
+    href: '/work/mathur-cineplex',
+    problem:
+      'Single-hall cinema in Dalli Rajhara needing an air-gapped, zero-internet ticketing counter, dynamic visual seat layout, 80mm thermal receipt printing, and GST compliance without cloud dependency or SaaS fees.',
+    did: 'Anythingssolution (ATS) engineered an end-to-end cinema operating system and local Windows release: visual seat map (Recliner, Gold, Silver, Lower), multi-portal roles (Counter & Admin), automated background startup, and offline MySQL persistence.',
+    result: 'Sub-second counter ticket issuance, zero double-booking concurrency guarantees, instant 80mm thermal receipt printing, and 100% offline uptime with automated Windows boot.',
+    image: '/portfolio/mathur-01-counter.png',
   },
 ];
 

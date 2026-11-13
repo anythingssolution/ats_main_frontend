@@ -227,7 +227,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ slug }) =>
             </a>
           ) : null}
         </div>
-        {project.liveUrl ? (
+        {project.slug === 'krishi-udhar' && project.liveUrl ? (
           <p className="mt-4 font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40">
             Free during beta · future price not announced
           </p>

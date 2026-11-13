@@ -30,12 +30,24 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
   const [contactOpen, setContactOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
+    try {
+      window.history.pushState(null, '', `#${id}`);
+    } catch {}
+
+    const triggerId = id === 'portfolio' ? 'portfolio-trigger' : id;
+    const st = ScrollTrigger.getById(triggerId);
+    if (st) {
+      window.scrollTo({ top: st.start, behavior: 'smooth' });
+      return;
+    }
+
     const el = document.getElementById(id);
     if (el) {
-      try {
-        window.history.pushState(null, '', `#${id}`);
-      } catch {}
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const spacer = el.closest('.pin-spacer') as HTMLElement | null;
+      const top = spacer
+        ? spacer.getBoundingClientRect().top + window.scrollY
+        : el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top, behavior: 'smooth' });
     }
   };
 
@@ -45,10 +57,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
     const performScroll = (smooth = false) => {
       const id = window.location.hash.replace('#', '');
       if (!id) return;
+
+      const triggerId = id === 'portfolio' ? 'portfolio-trigger' : id;
+      const st = ScrollTrigger.getById(triggerId);
+      if (st) {
+        window.scrollTo({ top: st.start, behavior: smooth ? 'smooth' : 'auto' });
+        return;
+      }
+
       const el = document.getElementById(id);
       if (el) {
-        ScrollTrigger.refresh();
-        el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+        const spacer = el.closest('.pin-spacer') as HTMLElement | null;
+        const top = spacer
+          ? spacer.getBoundingClientRect().top + window.scrollY
+          : el.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
       }
     };
 
