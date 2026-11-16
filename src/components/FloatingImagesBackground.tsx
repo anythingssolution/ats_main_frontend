@@ -93,7 +93,16 @@ function FlyingCard({
           marginTop: -spec.h / 2,
           transformStyle: 'preserve-3d',
         }}
-        initial={false}
+        // Start the loop on the first mount, including in production builds.
+        initial={{
+          x: `${dirX * 10}vw`,
+          y: `${dirY * 9}vh`,
+          z: -520,
+          scale: 0.28,
+          opacity: 0,
+          rotate: spec.rotate,
+          filter: 'blur(1.5px)',
+        }}
         animate={{
           x: [`${dirX * 10}vw`, `${dirX * 72}vw`],
           y: [`${dirY * 9}vh`, `${dirY * 66}vh`],
