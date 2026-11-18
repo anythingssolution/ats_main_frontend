@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowUpRight, Building2, Rocket, Store } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { navigate } from '../lib/navigate';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -31,27 +31,6 @@ const STEPS = [
     n: '05',
     title: 'Grow',
     body: 'Growth from the same product we built. Head to toe, ongoing. One partner from first conversation to the next shift.',
-  },
-];
-
-const AUDIENCES = [
-  {
-    n: '01',
-    icon: Rocket,
-    title: 'Startups',
-    line: 'We help you look real, launch fast, and spend only on what moves the needle.',
-  },
-  {
-    n: '02',
-    icon: Store,
-    title: 'Local businesses',
-    line: 'We help you get found, look current, and get customers without a big-agency bill.',
-  },
-  {
-    n: '03',
-    icon: Building2,
-    title: 'Growing teams',
-    line: 'We help you replace scattered vendors with one tech path — product, systems, growth.',
   },
 ];
 
@@ -163,53 +142,12 @@ export const OfferSections: React.FC = () => {
         </div>
       </section>
 
-      <section id="audience" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
-        <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
-          <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-            IV — Clients
-          </p>
-          <div className="relative mb-10">
-            <div data-rule-line className="h-px w-full bg-[#111111]/20" />
-          </div>
-          <h2
-            data-reveal
-            className="mb-12 max-w-[18ch] font-syne text-[clamp(2.2rem,5.5vw,4.4rem)] font-semibold leading-[0.95] tracking-tight md:mb-16"
-          >
-            If you run a business, you&apos;re in scope.
-          </h2>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {AUDIENCES.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article
-                  key={item.title}
-                  data-service-card
-                  className="group relative overflow-hidden border border-[#111111]/10 bg-white/50 p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[#111111]/25 hover:bg-white md:p-8"
-                >
-                  <div className="mb-10 flex items-start justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center border border-[#111111]/15 bg-white text-[#111111] transition-colors duration-300 group-hover:border-[#111111] group-hover:bg-[#111111] group-hover:text-white">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-[#111111]/35">
-                      ({item.n})
-                    </span>
-                  </div>
-                  <h3 className="font-syne text-2xl font-semibold tracking-tight">{item.title}</h3>
-                  <p className="mt-4 text-sm leading-relaxed text-[#111111]/55">{item.line}</p>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <section id="method" className="relative z-10 bg-black text-white">
         <div className="mx-auto w-full max-w-[1400px] md:grid md:grid-cols-12">
           {/* Desktop — sticky step index */}
           <div className="hidden flex-col justify-center px-6 py-16 md:sticky md:top-0 md:col-span-5 md:flex md:h-screen md:px-12">
             <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-              V — Method
+              IV — Method
             </p>
             <p className="font-syne text-[clamp(4.5rem,12vw,9rem)] font-semibold leading-none tracking-tight text-white/20">
               {STEPS[activeStep].n}
@@ -234,7 +172,7 @@ export const OfferSections: React.FC = () => {
           {/* Mobile — compact intro only */}
           <div className="px-6 pb-6 pt-20 md:hidden">
             <p className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-white/45">
-              V — Method
+              IV — Method
             </p>
             <p className="font-syne text-[clamp(2rem,8vw,2.8rem)] font-semibold leading-[0.95] tracking-tight">
               How we work

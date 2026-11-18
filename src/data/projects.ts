@@ -7,6 +7,7 @@ export type Project = {
   slug: string;
   title: string;
   subtitle: string;
+  tagline?: string;
   year: string;
   images: string[];
   /** Designed poster for the portfolio card. Falls back to images[0]. */
@@ -42,6 +43,7 @@ export const PROJECTS: Project[] = [
     title: 'Dr. Trivedi’s Homeopathy',
     hindiName: 'डॉ. त्रिवेदी होम्योपैथी',
     subtitle: 'Clinic ERP & Live Queue',
+    tagline: 'Clinic ERP & real-time live queue platform',
     year: '2026',
     eyebrow: 'Full-Stack Clinic ERP by Anythingssolution (ATS)',
     images: [
@@ -156,6 +158,7 @@ export const PROJECTS: Project[] = [
     title: 'Krishi Udhar',
     hindiName: 'कृषि उधार',
     subtitle: 'Product',
+    tagline: 'Billing and credit accounts for agricultural shops',
     year: '2026',
     eyebrow: 'Product by Anythingssolution (ATS)',
     images: [
@@ -273,6 +276,7 @@ export const PROJECTS: Project[] = [
     title: 'Mathur Cineplex',
     hindiName: 'माथुर सिनेप्लेक्स',
     subtitle: 'Cinema ERP & Box Office',
+    tagline: 'In-premise cinema ERP & box office ticketing',
     year: '2026',
     eyebrow: 'In-Premise Cinema ERP by Anythingssolution (ATS)',
     images: [

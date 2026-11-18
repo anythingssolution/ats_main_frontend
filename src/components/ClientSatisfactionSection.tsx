@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Star, ArrowUpRight, CheckCircle2, MapPin, User, Sparkles } from 'lucide-react';
+import { Star, ArrowUpRight, CheckCircle2, MapPin, User, Sparkles, Building2, Rocket, Store } from 'lucide-react';
 import { navigate } from '../lib/navigate';
 
 interface PersonTag {
@@ -11,6 +11,27 @@ interface PersonTag {
   y: number; // percentage from top (torso/chest to never block faces)
   zoneClass: string;
 }
+
+const AUDIENCES = [
+  {
+    n: '01',
+    icon: Rocket,
+    title: 'Startups',
+    line: 'We help you look real, launch fast, and spend only on what moves the needle.',
+  },
+  {
+    n: '02',
+    icon: Store,
+    title: 'Local businesses',
+    line: 'We help you get found, look current, and get customers without a big-agency bill.',
+  },
+  {
+    n: '03',
+    icon: Building2,
+    title: 'Growing teams',
+    line: 'We help you replace scattered vendors with one tech path — product, systems, growth.',
+  },
+];
 
 const PEOPLE_TAGS: PersonTag[] = [
   {
@@ -275,6 +296,52 @@ export const ClientSatisfactionSection: React.FC = () => {
             </div>
           </div>
         </article>
+
+        {/* ============================================================ */}
+        {/* CLIENTS IN SCOPE / AUDIENCE CARDS */}
+        {/* ============================================================ */}
+        <div className="mt-14 md:mt-20 border-t border-[#111111]/10 pt-12 md:pt-16">
+          <div className="mb-8 md:mb-10">
+            <p className="font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
+              Clients in Scope
+            </p>
+            <div className="relative my-4">
+              <div className="h-px w-full bg-[#111111]/15" />
+            </div>
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <h3 className="max-w-[18ch] font-syne text-[clamp(2rem,4.5vw,3.6rem)] font-semibold leading-[0.95] tracking-tight text-[#111111]">
+                If you run a business, you&apos;re in scope.
+              </h3>
+              <p className="max-w-[20rem] text-[14px] leading-relaxed text-[#111111]/55 md:text-right">
+                We help founders, local businesses, and growing teams replace patchwork tools with high-impact software.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {AUDIENCES.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.title}
+                  data-service-card
+                  className="group relative overflow-hidden rounded-2xl border border-[#111111]/12 bg-[#F9F9F9] p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[#111111]/25 hover:bg-white md:p-8"
+                >
+                  <div className="mb-10 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#111111]/15 bg-white text-[#111111] transition-colors duration-300 group-hover:border-[#111111] group-hover:bg-[#111111] group-hover:text-white">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="font-mono-custom text-[10px] uppercase tracking-[0.28em] text-[#111111]/35">
+                      [{item.n}]
+                    </span>
+                  </div>
+                  <h4 className="font-syne text-2xl font-semibold tracking-tight text-[#111111]">{item.title}</h4>
+                  <p className="mt-4 text-sm leading-relaxed text-[#111111]/55">{item.line}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
 
       </div>
     </section>

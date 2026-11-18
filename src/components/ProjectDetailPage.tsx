@@ -162,9 +162,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ slug }) =>
         </p>
         <h1 className="mt-4 font-syne text-[clamp(2.6rem,7vw,6.4rem)] font-semibold uppercase leading-[0.9] tracking-tight">
           {project.title}
-          {project.hindiName ? (
+          {project.hindiName || project.tagline ? (
             <span className="mt-3 block font-syne text-[clamp(1.1rem,2.4vw,1.8rem)] font-medium normal-case tracking-tight text-white/55">
-              {project.hindiName} — billing and credit accounts for agricultural shops
+              {[project.hindiName, project.tagline].filter(Boolean).join(' — ')}
             </span>
           ) : null}
         </h1>
@@ -222,7 +222,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ slug }) =>
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 border border-white/15 px-6 py-3 font-mono-custom text-[11px] uppercase tracking-[0.22em] text-white/80 hover:text-white"
             >
-              YouTube @krishiudhar
+              YouTube {project.youtubeUrl.includes('@') ? `@${project.youtubeUrl.split('@')[1].split('/')[0]}` : ''}
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           ) : null}
@@ -412,11 +412,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ slug }) =>
 
         {isCaseStudy ? (
           <div className="seo-outline">
-            <p>
-              Krishi Udhar (कृषि उधार) is Hindi billing and udhari software for fertiliser, seed and agri-input shops.
-              It is designed, built and operated by Anythingssolution (ATS) at anythingssolution.com. Live product:
-              krishiudhar.com.
-            </p>
+            <p>{project.seoDescription ?? project.summary}</p>
           </div>
         ) : null}
       </main>
