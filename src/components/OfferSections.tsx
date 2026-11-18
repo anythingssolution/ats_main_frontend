@@ -352,10 +352,10 @@ export const CaseStudiesSection: React.FC = () => {
   }, []);
 
   return (
-    <section ref={rootRef} id="work" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
+    <section ref={rootRef} id="stories" className="relative z-10 bg-[#F4F4F4] text-[#111111]">
       <div className="mx-auto w-full max-w-[1400px] px-6 py-24 md:px-12 md:py-32">
         <p data-reveal className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.4em] text-[#111111]/45">
-          VI — Work
+          VII — Stories
         </p>
         <div className="relative mb-10">
           <div data-rule-line className="h-px w-full bg-[#111111]/20" />

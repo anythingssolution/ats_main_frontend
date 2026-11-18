@@ -1,14 +1,15 @@
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export function scrollToTarget(id: string, smooth = true): boolean {
-  const triggerId = id === 'portfolio' ? 'portfolio-trigger' : id;
+  const targetId = id === 'work' ? 'method' : id;
+  const triggerId = targetId === 'portfolio' ? 'portfolio-trigger' : targetId;
   const st = ScrollTrigger.getById(triggerId);
   if (st) {
     window.scrollTo({ top: st.start, behavior: smooth ? 'smooth' : 'auto' });
     return true;
   }
 
-  const el = document.getElementById(id);
+  const el = document.getElementById(targetId);
   if (el) {
     const spacer = el.closest('.pin-spacer') as HTMLElement | null;
     const top = spacer

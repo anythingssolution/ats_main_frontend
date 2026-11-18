@@ -6,6 +6,7 @@ import { GridTransitionSection } from './GridTransitionSection';
 import { FloatingImagesBackground } from './FloatingImagesBackground';
 import { TiltPortfolioSection } from './TiltPortfolioSection';
 import { CaseStudiesSection, OfferSections } from './OfferSections';
+import { ClientSatisfactionSection } from './ClientSatisfactionSection';
 import { ContactModal } from './ContactModal';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -34,20 +35,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       window.history.pushState(null, '', `#${id}`);
     } catch {}
 
-    const triggerId = id === 'portfolio' ? 'portfolio-trigger' : id;
+    const targetId = id === 'work' ? 'method' : id;
+    const triggerId = targetId === 'portfolio' ? 'portfolio-trigger' : targetId;
     const st = ScrollTrigger.getById(triggerId);
     if (st) {
       window.scrollTo({ top: st.start, behavior: 'smooth' });
       return;
     }
 
-    const el = document.getElementById(id);
+    const el = document.getElementById(targetId);
     if (el) {
       const spacer = el.closest('.pin-spacer') as HTMLElement | null;
+      const navOffset = targetId === 'clients' || targetId === 'stories' ? 70 : 0;
       const top = spacer
-        ? spacer.getBoundingClientRect().top + window.scrollY
-        : el.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top, behavior: 'smooth' });
+        ? spacer.getBoundingClientRect().top + window.scrollY - navOffset
+        : el.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
     }
   };
 
@@ -58,20 +61,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
       const id = window.location.hash.replace('#', '');
       if (!id) return;
 
-      const triggerId = id === 'portfolio' ? 'portfolio-trigger' : id;
+      const targetId = id === 'work' ? 'method' : id;
+      const triggerId = targetId === 'portfolio' ? 'portfolio-trigger' : targetId;
       const st = ScrollTrigger.getById(triggerId);
       if (st) {
         window.scrollTo({ top: st.start, behavior: smooth ? 'smooth' : 'auto' });
         return;
       }
 
-      const el = document.getElementById(id);
+      const el = document.getElementById(targetId);
       if (el) {
         const spacer = el.closest('.pin-spacer') as HTMLElement | null;
+        const navOffset = targetId === 'clients' || targetId === 'stories' ? 70 : 0;
         const top = spacer
-          ? spacer.getBoundingClientRect().top + window.scrollY
-          : el.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+          ? spacer.getBoundingClientRect().top + window.scrollY - navOffset
+          : el.getBoundingClientRect().top + window.scrollY - navOffset;
+        window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
       }
     };
 
@@ -520,17 +525,24 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               />
             </button>
             <nav className="hidden min-w-0 items-center gap-4 lg:flex lg:gap-5 xl:gap-7">
-              {['Services', 'Work', 'About', 'Portfolio'].map((item) => (
+              {[
+                { label: 'Services', id: 'services' },
+                { label: 'Work', id: 'method' },
+                { label: 'About', id: 'about' },
+                { label: 'Portfolio', id: 'portfolio' },
+                { label: 'Clients', id: 'clients' },
+                { label: 'Stories', id: 'stories' },
+              ].map((item) => (
                 <button
-                  key={item}
-                  onClick={() => scrollToSection(item.toLowerCase())}
+                  key={item.label}
+                  onClick={() => scrollToSection(item.id)}
                   className={`shrink-0 font-mono-custom text-[11px] uppercase tracking-[0.16em] font-medium transition-colors duration-300 cursor-pointer xl:text-xs xl:tracking-[0.2em] ${
                     navOnDark
                       ? 'text-white/70 hover:text-white'
                       : 'text-neutral-600 hover:text-black'
                   }`}
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </nav>
@@ -883,6 +895,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
 
       <TiltPortfolioSection />
 
+      <ClientSatisfactionSection />
+
       <CaseStudiesSection />
 
       <footer className="site-footer-grid relative z-10 overflow-x-hidden bg-black text-white">
@@ -907,9 +921,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
               {[
                 { label: 'Home', id: null },
                 { label: 'Services', id: 'services' },
-                { label: 'Work', id: 'work' },
+                { label: 'Work', id: 'method' },
                 { label: 'About', id: 'about' },
                 { label: 'Portfolio', id: 'portfolio' },
+                { label: 'Clients', id: 'clients' },
+                { label: 'Stories', id: 'stories' },
                 { label: 'Contact', id: 'contact' },
               ].map((item) => (
                 <button
