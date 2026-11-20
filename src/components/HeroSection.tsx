@@ -8,6 +8,7 @@ import { TiltPortfolioSection } from './TiltPortfolioSection';
 import { CaseStudiesSection, OfferSections } from './OfferSections';
 import { ClientSatisfactionSection } from './ClientSatisfactionSection';
 import { ContactModal } from './ContactModal';
+import { navigate } from '../lib/navigate';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -989,7 +990,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onReplayLoader, isLoad
             © 2026 Any Things Solution / All rights reserved
           </p>
           <div className="flex flex-nowrap items-center gap-4 font-mono-custom text-[10px] uppercase tracking-[0.22em] text-white/40 md:text-center">
-            <span>Privacy policy</span>
+            <button
+              type="button"
+              onClick={() => navigate('/privacy-policy')}
+              className="transition-colors hover:text-white cursor-pointer"
+            >
+              Privacy policy
+            </button>
             <span className="underline decoration-white/30 underline-offset-4">Terms of use</span>
           </div>
           <div className="flex items-center gap-5">

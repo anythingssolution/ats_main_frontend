@@ -175,8 +175,8 @@ export const GridTransitionSection: React.FC<GridTransitionSectionProps> = ({
             <span className="block font-syne text-[clamp(2.25rem,7vw,6rem)] font-bold leading-none tracking-tight text-black">
               WE MAKE IT
             </span>
-            <span className="mt-[0.1em] block font-syne text-[clamp(2.25rem,7vw,6rem)] font-bold leading-none tracking-tight text-black">
-              HAPPEN TODAY
+            <span className="mt-[0.1em] block font-syne text-[clamp(2rem,6.5vw,6rem)] font-bold leading-none tracking-tight text-black">
+              HAPPEN FOR YOU.
             </span>
           </div>
         </div>

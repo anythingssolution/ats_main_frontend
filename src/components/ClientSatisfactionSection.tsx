@@ -140,26 +140,29 @@ export const ClientSatisfactionSection: React.FC = () => {
           <div className="mt-7 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
             
             {/* Left: Interactive Client Photo with Hover Hotspots */}
-            <div className="relative overflow-hidden rounded-xl border border-[#111111]/10 bg-black/5 lg:col-span-5 select-none">
-              <div className="relative aspect-[4/3] w-full overflow-hidden">
-                <img
-                  src="/dr-trivedi-client.jpeg"
-                  alt="ATS with the client for Dr. Trivedi’s Homeopathy Clinic ERP project"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out"
-                  loading="lazy"
-                />
+            <div className="relative rounded-xl border border-[#111111]/10 bg-black/5 lg:col-span-5 select-none">
+              <div className="relative aspect-[4/3] w-full">
+                {/* Clipped image container */}
+                <div className="absolute inset-0 overflow-hidden rounded-xl">
+                  <img
+                    src="/dr-trivedi-client.jpeg"
+                    alt="ATS with the client for Dr. Trivedi’s Homeopathy Clinic ERP project"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out"
+                    loading="lazy"
+                  />
 
-                {/* Subtle dark gradient for readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+                  {/* Subtle dark gradient for readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+                </div>
 
                 {/* Top Hint badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1 font-mono-custom text-[9px] uppercase tracking-wider text-white/80 backdrop-blur-md border border-white/15 pointer-events-none">
+                <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1 font-mono-custom text-[9px] uppercase tracking-wider text-white/80 backdrop-blur-md border border-white/15 pointer-events-none">
                   <Sparkles className="h-2.5 w-2.5 text-white/70" />
                   <span>Hover people to identify</span>
                 </div>
 
                 {/* Bottom Location Label */}
-                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md border border-white/15 bg-black/75 px-3 py-1 font-mono-custom text-[10px] uppercase tracking-wider text-white backdrop-blur-md pointer-events-none">
+                <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-md border border-white/15 bg-black/75 px-3 py-1 font-mono-custom text-[10px] uppercase tracking-wider text-white backdrop-blur-md pointer-events-none">
                   <MapPin className="h-3 w-3 text-white/80" />
                   <span>Dr. Trivedi’s Homeopathy Clinic</span>
                 </div>
@@ -179,10 +182,28 @@ export const ClientSatisfactionSection: React.FC = () => {
                 {/* Hotspot Pins & Upward Tooltips */}
                 {PEOPLE_TAGS.map((person) => {
                   const isHovered = activePerson === person.id;
+                  const isRight = person.id === 'right';
+                  const isLeft = person.id === 'left';
+
+                  // Dynamic alignment so cards near edges expand towards the center
+                  const tooltipPosClass = isRight
+                    ? 'right-[-20px] translate-x-0'
+                    : isLeft
+                    ? 'left-[-20px] translate-x-0'
+                    : 'left-1/2 -translate-x-1/2';
+
+                  const arrowPosClass = isRight
+                    ? 'right-[14px]'
+                    : isLeft
+                    ? 'left-[14px]'
+                    : 'left-1/2 -translate-x-1/2';
+
                   return (
                     <div
                       key={person.id}
-                      className="absolute z-30 transition-transform duration-300"
+                      className={`absolute transition-transform duration-300 ${
+                        isHovered ? 'z-[60]' : 'z-30'
+                      }`}
                       style={{ left: `${person.x}%`, top: `${person.y}%` }}
                     >
                       {/* Interactive Subtle Monochrome Pin (Positioned on torso/chest) */}
@@ -215,9 +236,9 @@ export const ClientSatisfactionSection: React.FC = () => {
                         </span>
                       </button>
 
-                      {/* Tooltip Card: Opens ABOVE the Pin to prevent bottom clipping */}
+                      {/* Tooltip Card: Positioned above the pin with high z-index and adaptive edge alignment */}
                       <div
-                        className={`pointer-events-none absolute bottom-full left-1/2 z-40 mb-3 -translate-x-1/2 transition-all duration-250 ease-out ${
+                        className={`pointer-events-none absolute bottom-full z-[70] mb-3 transition-all duration-250 ease-out ${tooltipPosClass} ${
                           isHovered
                             ? 'opacity-100 scale-100 translate-y-0'
                             : 'opacity-0 scale-95 translate-y-2'
@@ -225,21 +246,23 @@ export const ClientSatisfactionSection: React.FC = () => {
                         style={{ minWidth: '190px' }}
                       >
                         {/* Tooltip Bubble styled to match ATS minimalist theme */}
-                        <div className="relative rounded-xl border border-white/20 bg-black/95 px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl text-center">
+                        <div className="relative rounded-xl border border-white/20 bg-black/95 px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.7)] backdrop-blur-xl text-center">
                           <div className="relative z-10 space-y-1">
-                            <span className="inline-block rounded-full bg-white/10 px-2.5 py-0.5 font-mono-custom text-[8px] uppercase tracking-[0.2em] text-white/70 border border-white/15">
+                            <span className="inline-block rounded-full bg-white/10 px-2.5 py-0.5 font-mono-custom text-[8px] uppercase tracking-[0.2em] text-white/70 border border-white/15 whitespace-nowrap">
                               {person.tag}
                             </span>
-                            <p className="font-syne text-[13px] font-semibold tracking-tight text-white">
+                            <p className="font-syne text-[13px] font-semibold tracking-tight text-white whitespace-nowrap">
                               {person.name}
                             </p>
-                            <p className="font-mono-custom text-[9px] uppercase tracking-[0.2em] text-white/50">
+                            <p className="font-mono-custom text-[9px] uppercase tracking-[0.2em] text-white/50 whitespace-nowrap">
                               {person.role}
                             </p>
                           </div>
 
                           {/* Arrow pointing DOWN to the pin */}
-                          <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-white/20 bg-black/95" />
+                          <div
+                            className={`absolute -bottom-1.5 h-3 w-3 rotate-45 border-b border-r border-white/20 bg-black/95 ${arrowPosClass}`}
+                          />
                         </div>
                       </div>
 

@@ -3,6 +3,7 @@ import { Preloader } from './components/Preloader';
 import { HeroSection } from './components/HeroSection';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { QrGeneratorPage } from './components/QrGeneratorPage';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 
 function currentPath() {
   return window.location.pathname.replace(/\/$/, '') || '/';
@@ -35,6 +36,10 @@ export default function App() {
 
   if (path === '/tools/qr') {
     return <QrGeneratorPage />;
+  }
+
+  if (path === '/privacy-policy' || path === '/privacy') {
+    return <PrivacyPolicyPage />;
   }
 
   const workMatch = path.match(/^\/work\/([^/]+)$/);
